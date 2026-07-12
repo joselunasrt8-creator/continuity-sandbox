@@ -1,0 +1,56 @@
+name: merge-guard-consumer
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  merge-guard-consumer:
+    name: merge-guard-consumer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run published Continuity Merge Guard
+        id: merge-guard
+        uses: joselunasrt8-creator/continuity-merge-guard@v1.0.0
+        continue-on-error: true
+        with:
+          repo: ${{ github.repository }}
+          pr-number: ${{ github.event.pull_request.number }}
+          head-sha: ${{ github.event.pull_request.head.sha }}
+          base-sha: ${{ github.event.pull_request.base.sha }}
+          actor: ${{ github.event.pull_request.user.login }}
+          pr-author: ${{ github.event.pull_request.user.login }}
+          head-ref: ${{ github.event.pull_request.head.ref }}
+          pr-body: ${{ github.event.pull_request.body }}
+          pr-labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+
+      - name: Expose Merge Guard outputs
+        if: always()
+        env:
+          MERGE_GUARD_OUTPUTS: ${{ toJSON(steps.merge-guard.outputs) }}
+        run: |
+          set -euo pipefail
+          echo "Merge Guard outputs:"
+          printf '%s\n' "$MERGE_GUARD_OUTPUTS"
+
+      - name: Upload Merge Guard proof artifact if emitted
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: MERGE_GUARD_PROOF
+          path: MERGE_GUARD_PROOF.json
+          if-no-files-found: ignore
+          overwrite: true
+
+      - name: Fail if Merge Guard failed
+        if: always() && steps.merge-guard.outcome != 'success'
+        run: |
+          echo "Continuity Merge Guard failed with outcome: ${{ steps.merge-guard.outcome }}" >&2
+          exit 1

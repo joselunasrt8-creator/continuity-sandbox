@@ -1,105 +1,35 @@
 # continuityos-sandbox
 
-External consumer / adoption-proof environment for
-[ContinuityOS](https://github.com/joselunasrt8-creator/ContinuityOS-).
+This repository is the canonical external consumer repository for the published
+Continuity Merge Guard GitHub Action.
 
-This repo is intentionally separate from the ContinuityOS source repo. Its
-purpose is to validate that ContinuityOS components — starting with the
-Continuity Merge Guard GitHub Action — can be installed and used by a repo
-that is not where ContinuityOS was built.
+It exists solely to verify that a fresh repository outside the Merge Guard source
+repository can install and execute the released action exactly as documented.
+
+## External consumer purpose
+
+This repository is intentionally separate from Merge Guard development. It does
+not modify Merge Guard, duplicate Merge Guard logic, or vendor files from the
+Merge Guard repository.
+
+The only required behavior is external consumption of the published release:
 
 ```text
-ContinuityOS source repo (joselunasrt8-creator/ContinuityOS-)
-→ provides Merge Guard (actions/continuity-merge-guard/)
-
-continuityos-sandbox (this repo)
-→ consumes Merge Guard as an external validation surface
+joselunasrt8-creator/continuity-merge-guard@v1.0.0
 ```
 
-## What is Merge Guard?
+## Release validation role
 
-A small GitHub Action that checks whether a pull request's identity —
-`{repo, pr_number, head_sha, base_sha, actor}` — is complete, before the
-PR is treated as mergeable. It hashes that identity into a proof artifact
-(`MERGE_GUARD_PROOF.json`) attached to every run.
+Pull request workflow runs validate that the published Merge Guard release can be
+installed and executed from a normal external repository using only GitHub
+provided pull request context.
 
-## What problem does it solve?
+Those workflow runs serve as reproducible external installation evidence for the
+published action release. The workflow logs preserve the action outputs, and any
+proof file emitted by the action is uploaded as the `MERGE_GUARD_PROOF` artifact.
 
-PRs (especially agent-authored ones) can be merged without a verifiable,
-reproducible record of *what exactly* was reviewed and merged. Merge Guard
-gives every PR a canonical, hashed identity object and a pass/fail
-judgment on whether that object is complete — a minimal, auditable
-"this PR is what it claims to be" check.
+## Minimal repository policy
 
-## Why require it before merge?
-
-Once added as a required status check, no PR can merge unless its
-identity object is `VALID`. This makes "the identity object was checked
-and complete" part of what "mergeable" means for the repo — not just an
-informational badge.
-
-## What does VALID mean?
-
-All five identity fields (`repo`, `pr_number`, `head_sha`, `base_sha`,
-`actor`) are present and non-empty. The action exits `0` and uploads
-`MERGE_GUARD_PROOF.json` with `result: "VALID"`.
-
-## What does NULL mean?
-
-One or more identity fields are missing or empty. The action **fails
-closed**: it exits non-zero (`result: "NULL"`, `missing_fields: [...]`),
-so a required check reports `failure` and merge is blocked.
-
-## Why is this different from a normal CI check?
-
-A normal CI check tests the *content* of a PR (does it build, do tests
-pass). Merge Guard tests the *identity* of the PR itself — that the thing
-being merged is fully and verifiably specified, with a hashed proof
-artifact as evidence. It is a legitimacy check, not a build/test check,
-and it fails closed (NULL → blocked) rather than failing open.
-
----
-
-See [`VALIDATION.md`](./VALIDATION.md) for the external-consumer validation
-record (Issue #1: VALID / NULL / proof artifacts / adoption friction).
-
-See [`DEPENDENCY_ASSESSMENT.md`](./DEPENDENCY_ASSESSMENT.md) for the
-dependency formation assessment (Issue #3: with/without comparison,
-required-status-check recommendation, and the fail-closed
-`BLOCKED_NULL` / `BLOCKED_UNKNOWN` / `BLOCKED_BREAK_GLASS_REQUIRED`
-model).
-
-See [`LOAD_BEARING_READINESS.md`](./LOAD_BEARING_READINESS.md) for the
-load-bearing readiness assessment (Issue #5: canonical install path,
-`@v0.1.0` version strategy, adoption-friction status, and documented
-required-status-check configuration). Current classification:
-`LOAD-BEARING_ACTIVE`.
-
-See [`NULL_ENFORCEMENT_PROOF.md`](./NULL_ENFORCEMENT_PROOF.md) for the
-required-check failure enforcement proof (Issue #9: PR #9 drove the
-required `merge-guard` check to `result: NULL` / `conclusion: failure` and
-GitHub reported the PR as `blocked` — `BLOCKED_NULL_CONFIRMED`).
-
-## Validation loops 5-10
-
-See [`COMPREHENSION.md`](./COMPREHENSION.md) (Loop 5) for the
-external-stranger comprehension check: 6 questions, answerable from this
-README and one linked doc each, in 5 minutes —
-`COMPREHENSIBLE_IN_5_MINUTES`.
-
-See [`EXTERNAL_DEPENDENCY_PROOF.md`](./EXTERNAL_DEPENDENCY_PROOF.md)
-(Loop 6) for the formal external-dependency closure: this repo pins
-`@v0.1.0`, requires `merge-guard`, and has real PRs whose merge
-eligibility depended on its result — `EXTERNAL_DEPENDENCY_CONFIRMED`.
-
-See [`BREAK_GLASS.md`](./BREAK_GLASS.md) (Loop 7) for the governed
-override path used if `merge-guard` ever blocks a merge that cannot wait
-— `GOVERNED_OVERRIDE_DEFINED`.
-
-See [`VERSION_UPGRADE.md`](./VERSION_UPGRADE.md) (Loop 8) for the
-`@v0.1.0` → `@v0.1.1` upgrade readiness assessment —
-`VALIDATOR_CONTINUITY_PROVEN` (tag publication pending maintainer action).
-
-See [`RETENTION_SIGNAL.md`](./RETENTION_SIGNAL.md) (Loop 10) for the
-operator's retention feedback after living with `merge-guard` as a
-required check — `RETAIN`.
+This repository intentionally contains only minimal code and documentation needed
+to operate as an external installation evidence surface. It is not a development
+copy of Merge Guard and must not grow Merge Guard implementation logic.
