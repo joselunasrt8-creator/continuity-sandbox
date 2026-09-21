@@ -1,19 +1,19 @@
 # Continufy Sandbox
 
-`continuity-sandbox` is the controlled internal empirical testbed for the Continufy ecosystem.
+`continuity-sandbox` is the controlled internal governance-experiment surface for StateGate and ContinuityOS.
 
-Its purpose is to test, measure, falsify, and reproduce claims about Continufy components before those claims are presented to independent external users.
+Its purpose is to test, measure, falsify, and reproduce bounded claims about exported StateGate / ContinuityOS governance mechanisms before those claims are presented to independent external users.
 
 The repository is not itself proof of external adoption, market value, or independent trust. It is a controlled environment for producing stronger internal evidence and for discovering where the evidence stops.
 
 ## Governing question
 
-> What can we legitimately demonstrate about a Continufy component before asking an independent user to depend on it?
+> What can we legitimately demonstrate about a StateGate / ContinuityOS governance mechanism before asking an independent user to depend on it?
 
 ## Role in the evidence pipeline
 
 ```text
-Continufy component
+StateGate / ContinuityOS governance mechanism
         ↓
 continuity-sandbox
         ↓
@@ -38,12 +38,12 @@ The sandbox should be used to answer empirical questions such as:
 - What measurable overhead does it introduce?
 - Does removal change workflow behavior?
 - Can the result be reproduced across repeated runs?
-- Can another repository in the Continufy ecosystem consume the component without copying its implementation?
+- Can another repository consume the governance mechanism without copying its implementation?
 - Is an apparent dependency genuine, or can the same guarantee be reproduced by a trivial local substitute?
 
 ## Current demonstrated surface
 
-The repository currently serves as an external repository consumer of ContinuityOS Merge Guard behavior.
+The repository currently serves as a separate, same-owner repository consumer of ContinuityOS Merge Guard behavior.
 
 Existing work has demonstrated evidence classes including:
 
@@ -90,8 +90,10 @@ The sandbox does **not** establish:
 - willingness to pay
 - market demand
 - long-term production reliability outside this environment
+- evidence about MindShift, SYNAPSE, Structural Analysis Foundations, Architectural Boundary Research, Structology, or Continufy as an integrated ecosystem
+- cross-component composition
 
-Those require an independent trust boundary and real external use.
+The external-use claims require an independent trust boundary and real external use. Cross-component composition requires separately authorized experiments in the repositories that own those claims.
 
 The intended progression is therefore:
 
@@ -100,9 +102,9 @@ Architecture proof
         ↓
 Sandbox experiment
         ↓
-Repeated quantitative evidence
+Repeated quantitative governance evidence
         ↓
-Cross-repo ecosystem validation
+Cross-repo same-owner governance evidence
         ↓
 Independent external experiment
         ↓
@@ -147,6 +149,12 @@ evidence
 
 The separation matters because the sandbox is intended to test the exported behavior, not manufacture the behavior locally.
 
+## Ecosystem boundary
+
+This repository is not the general Continufy empirical testbed. Continufy Issue #16 assigns component experiments to the repositories that own the tested mechanisms and reserves later cross-component investigation for a separately justified research surface.
+
+Results produced here remain bounded to the exact StateGate / ContinuityOS governance intervention, workflow, fixtures, and evidence identities under test. They must not be treated as evidence for MindShift, SYNAPSE, Structural Analysis Foundations, Architectural Boundary Research, Structology, or ecosystem composition.
+
 ## Repository policy
 
 Changes should increase empirical value rather than architectural scope.
@@ -172,7 +180,7 @@ Avoid:
 
 ## Current objective
 
-Use the sandbox to exhaust the legitimate evidence available inside the Continufy ecosystem before requesting time, trust, or workflow changes from independent external users.
+Use the sandbox to exhaust the legitimate same-owner evidence available for StateGate / ContinuityOS governance mechanisms before requesting time, trust, or workflow changes from independent external users.
 
 The target is not to prove that Continufy must succeed.
 
