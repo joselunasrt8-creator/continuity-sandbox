@@ -5,13 +5,14 @@ import { readFile, writeFile } from 'node:fs/promises'
 
 const repo = process.env.GITHUB_REPOSITORY
 const token = process.env.GITHUB_TOKEN
+const configReadToken = process.env.CONFIG_READ_TOKEN
 const api = (process.env.GITHUB_API_URL || 'https://api.github.com').replace(/\/$/, '')
 const eventPath = process.env.GITHUB_EVENT_PATH
 const outPath = process.env.COMMON_EVIDENCE_PATH || 'common-evidence.json'
 const scenarioId = process.env.BENCHMARK_SCENARIO_ID
 const arm = process.env.BENCHMARK_ARM
-if (!repo || !token || !eventPath || !/^SG-MO1-C[1-6]-R0[1-4]$/.test(scenarioId || '') || !['A', 'B', 'C'].includes(arm)) {
-  throw new Error('Require repository/token/event plus valid BENCHMARK_SCENARIO_ID and BENCHMARK_ARM')
+if (!repo || !token || !configReadToken || !eventPath || !/^SG-MO1-C[1-6]-R0[1-4]$/.test(scenarioId || '') || !['A', 'B', 'C'].includes(arm)) {
+  throw new Error('Require repository/token/config-read-token/event plus valid BENCHMARK_SCENARIO_ID and BENCHMARK_ARM')
 }
 
 const sha256 = bytes => `sha256:${createHash('sha256').update(bytes).digest('hex')}`
@@ -20,8 +21,8 @@ const canonical = value => Array.isArray(value) ? `[${value.map(canonical).join(
 const baseHeaders = { authorization: `Bearer ${token}`, accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28' }
 const sources = []
 
-async function request(url, accept = baseHeaders.accept, allowed = [200]) {
-  const response = await fetch(url, { headers: { ...baseHeaders, accept } })
+async function request(url, accept = baseHeaders.accept, allowed = [200], credential = token) {
+  const response = await fetch(url, { headers: { ...baseHeaders, authorization: `Bearer ${credential}`, accept } })
   const body = await response.text()
   const record = { url, status: response.status, accept, etag: response.headers.get('etag'), body_sha256: sha256(body), body }
   sources.push(record)
@@ -29,12 +30,12 @@ async function request(url, accept = baseHeaders.accept, allowed = [200]) {
   return { ...record, json: accept === 'application/vnd.github.diff' ? null : (body ? JSON.parse(body) : null), link: response.headers.get('link') }
 }
 
-async function pages(url, itemPath = null, accept = baseHeaders.accept) {
+async function pages(url, itemPath = null, accept = baseHeaders.accept, credential = token) {
   const items = []
   let next = url
   for (let pageNumber = 1; next; pageNumber += 1) {
     if (pageNumber > 100) throw new Error(`Pagination exceeded 100 pages: ${url}`)
-    const page = await request(next, accept)
+    const page = await request(next, accept, [200], credential)
     const rows = itemPath ? page.json?.[itemPath] : page.json
     if (!Array.isArray(rows)) throw new Error(`Expected array at ${itemPath || '$'}: ${next}`)
     items.push(...rows)
@@ -63,7 +64,7 @@ const diff = await request(prUrl, 'application/vnd.github.diff')
 const commits = await pages(`${prUrl}/commits?per_page=100`)
 const timeline = await pages(`${api}/repos/${repo}/issues/${prNumber}/timeline?per_page=100`, null, 'application/vnd.github+json')
 const headSha = prStart.json.head?.sha
-const checks = await pages(`${api}/repos/${repo}/commits/${headSha}/check-runs?per_page=100`, 'check_runs')
+const checks = await pages(`${api}/repos/${repo}/commits/${headSha}/check-runs?filter=all&per_page=100`, 'check_runs')
 const runs = await pages(`${api}/repos/${repo}/actions/runs?head_sha=${encodeURIComponent(headSha)}&per_page=100`, 'workflow_runs')
 const artifacts = []
 for (const run of runs) {
@@ -71,8 +72,8 @@ for (const run of runs) {
   artifacts.push(...runArtifacts.map(a => ({ ...a, workflow_run_id: run.id })))
 }
 const baseRef = prStart.json.base?.ref
-const protection = await request(`${api}/repos/${repo}/branches/${encodeURIComponent(baseRef)}/protection`, baseHeaders.accept, [200, 404])
-const rulesets = await pages(`${api}/repos/${repo}/rulesets?includes_parents=true&per_page=100`)
+const protection = await request(`${api}/repos/${repo}/branches/${encodeURIComponent(baseRef)}/protection`, baseHeaders.accept, [200, 404], configReadToken)
+const rulesets = await pages(`${api}/repos/${repo}/rulesets?includes_parents=true&per_page=100`, null, baseHeaders.accept, configReadToken)
 const reviewsEnd = await pages(`${prUrl}/reviews?per_page=100`)
 const prEnd = await request(prUrl)
 
@@ -102,7 +103,7 @@ const packet = {
   trigger,
   fetched_object: {
     repository: { id: repository.json.id, full_name: repository.json.full_name, html_url: repository.json.html_url },
-    pull_request: { number: prEnd.json.number, html_url: prEnd.json.html_url, state: prEnd.json.state, draft: prEnd.json.draft, merged: prEnd.json.merged, mergeable: prEnd.json.mergeable, mergeable_state: prEnd.json.mergeable_state, created_at: prEnd.json.created_at, updated_at: prEnd.json.updated_at, merged_at: prEnd.json.merged_at, closed_at: prEnd.json.closed_at },
+    pull_request: { number: prEnd.json.number, html_url: prEnd.json.html_url, author_user_id: prEnd.json.user?.id ?? null, state: prEnd.json.state, draft: prEnd.json.draft, merged: prEnd.json.merged, mergeable: prEnd.json.mergeable, mergeable_state: prEnd.json.mergeable_state, created_at: prEnd.json.created_at, updated_at: prEnd.json.updated_at, merged_at: prEnd.json.merged_at, closed_at: prEnd.json.closed_at },
     head_sha: prEnd.json.head?.sha ?? null, base_sha: prEnd.json.base?.sha ?? null, base_ref: baseRef,
     diff_sha256: sha256(canonicalDiff), diff_canonicalization: 'LF_NORMALIZE_TERMINAL_LF_PRESERVE_PATCH_TEXT_AND_ORDER',
     commits, reviews: reviewProjection(reviewsEnd), checks, workflow_runs: runs, workflow_artifacts: artifacts,
@@ -115,7 +116,7 @@ const packet = {
     reviews_start_sha256: sha256(canonical(reviewProjection(reviewsStart))), reviews_end_sha256: sha256(canonical(reviewProjection(reviewsEnd))),
     stable_object: stableObject, stable_reviews: stableReviews
   },
-  provenance: { source: 'GitHub REST API', api_version: '2022-11-28', collector: 'common-collector.mjs@1.0.0', raw_event: { sha256: sha256(eventBytes), body: event }, responses: sources }
+  provenance: { source: 'GitHub REST API', api_version: '2022-11-28', collector: 'common-collector.mjs@1.1.0', credential_classes: { common: 'GITHUB_TOKEN_READ_ONLY', configuration: 'BENCHMARK_ADMIN_READ_TOKEN_ADMINISTRATION_READ_ONLY' }, raw_event: { sha256: sha256(eventBytes), body: event }, responses: sources }
 }
 const output = `${JSON.stringify(packet, null, 2)}\n`
 await writeFile(outPath, output, { mode: 0o600 })

@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.1.0",
+  "manifest_version": "1.2.0",
   "design": {
     "scenario_classes": 6,
     "repetitions_per_class": 4,
@@ -38,7 +38,15 @@
       "SG-MO1-C3-R03",
       "SG-MO1-C3-R02"
     ],
-    "randomization_algorithm": "Precomputed permutations below are normative; generated with CPython 3.12.14 random.Random (MT19937), scenario order shuffled from design seed and arm order shuffled from seed concatenated with scenario ID."
+    "randomization_algorithm": "Precomputed permutations below are normative; generated with CPython 3.12.14 random.Random (MT19937), scenario order shuffled from design seed and arm order shuffled from seed concatenated with scenario ID.",
+    "episode_isolation": {
+      "repository_count": 3,
+      "rule": "One repository per arm. Before the cohort, create one protected target branch per scenario ID at the recorded parentless arm base commit. A PR may target only refs/heads/bench/<scenario_id>/base and use refs/heads/bench/<scenario_id>/head. No two episodes share a target branch, and a merge changes only that episode's target.",
+      "target_branch_template": "bench/<scenario_id>/base",
+      "head_branch_template": "bench/<scenario_id>/head",
+      "required_branch_count_per_repository": 24,
+      "preflight": "Read back all 24 target refs and effective controls before the first episode; each target must equal the recorded arm base commit and have the frozen native controls. Any mismatch is BLOCKED."
+    }
   },
   "fixture_binding": {
     "manifest": "fixtures/FIXTURE_MANIFEST.json",
@@ -67,7 +75,7 @@
     "input_format": "JSON replay_input_version 1.0.0 containing scenario_id, arm, one CONSISTENT common_packet, native_input, and for C only stategate_input plus archived_stategate_proof.",
     "required_input_fields": {
       "all_arms": ["replay_input_version", "scenario_id", "arm", "common_packet", "native_input"],
-      "native_input": ["expected_head_sha", "expected_base_sha", "expected_diff_sha256", "fixture_ci_success", "current_head_approval", "native_rules_verified"],
+      "native_input": ["expected_head_sha", "expected_base_sha", "expected_diff_sha256"],
       "arm_C_additional": ["stategate_input", "archived_stategate_proof"],
       "stategate_input_rule": "Exact archived validateMergeGuard input after acquisition: repo, pr_number, head_sha, base_sha, actor, author/attribution inputs, pr_diff exact bytes, diff_source, expected_diff_hash, require_review_approval, minimum_approvals, normalized review_evidence, evaluated_head_sha and evaluated_base_sha; omit github_token and github_api_url."
     },
@@ -76,7 +84,7 @@
       "A_or_B": "node replay-evidence.mjs --input replay-input.json --output replay-output-1.json; repeat to replay-output-2.json",
       "C": "node replay-evidence.mjs --input replay-input.json --output replay-output-1.json --stategate-dir /path/to/stategate-dd6a607; repeat to replay-output-2.json"
     },
-    "expected_output": "JSON replay_output_version 1.0.0 with scenario_id, arm, input_sha256, native {eligible,reasons}, stategate (null for A/B; decision/proof/archived_proof_equal for C), and observed_eligible. Both runs must have byte-identical output (there is no clock/run nonce), equal output SHA-256, and observed_eligible equal independently frozen ground truth. Arm C additionally requires archived_proof_equal=true, git checkout HEAD at the pinned commit, and the frozen release/tree/hash identities.",
+    "expected_output": "JSON replay_output_version 1.0.0 with scenario_id, arm, input_sha256, native {eligible,reasons,derived}, stategate (null for A/B; decision/proof/archived_proof_equal for C), and observed_eligible. Native fixture-CI success, current-head approval and rule compliance are derived from the archived packet and are never caller assertions. Both runs must have byte-identical output (there is no clock/run nonce), equal output SHA-256, and observed_eligible equal independently frozen ground truth. Arm C additionally requires archived_proof_equal=true, git checkout HEAD and tree at the pin, an empty worktree including untracked files, every release-manifest file hash, and the frozen release identities.",
     "network_rule": "Run in a clean environment with outbound network disabled. No live GitHub acquisition or artifact substitution is permitted."
   },
   "scenario_classes": [
@@ -128,7 +136,7 @@
         "C"
       ],
       "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before PR event; obtain current-head approval.",
-      "event_mutation_sequence": "OPEN \u2192 synchronize \u2192 ready_for_review \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on eligible fixture.",
+      "event_mutation_sequence": "OPEN(H1 as ready-for-review) \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on this scenario's isolated target branch.",
       "evidence_requirements": "Repository/PR/event/head/base/diff, approval bound to current head, CI and required checks.",
       "expected_observations": "All arms disposition eligible; StateGate VALID and proof binds current object.",
       "stopping_behavior": "No unexpected mutation; no merge before evidence capture.",
@@ -155,7 +163,7 @@
         "C"
       ],
       "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before PR event; obtain current-head approval.",
-      "event_mutation_sequence": "OPEN \u2192 synchronize \u2192 ready_for_review \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on eligible fixture.",
+      "event_mutation_sequence": "OPEN(H1 as ready-for-review) \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on this scenario's isolated target branch.",
       "evidence_requirements": "Repository/PR/event/head/base/diff, approval bound to current head, CI and required checks.",
       "expected_observations": "All arms disposition eligible; StateGate VALID and proof binds current object.",
       "stopping_behavior": "No unexpected mutation; no merge before evidence capture.",
@@ -182,7 +190,7 @@
         "C"
       ],
       "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before PR event; obtain current-head approval.",
-      "event_mutation_sequence": "OPEN \u2192 synchronize \u2192 ready_for_review \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on eligible fixture.",
+      "event_mutation_sequence": "OPEN(H1 as ready-for-review) \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on this scenario's isolated target branch.",
       "evidence_requirements": "Repository/PR/event/head/base/diff, approval bound to current head, CI and required checks.",
       "expected_observations": "All arms disposition eligible; StateGate VALID and proof binds current object.",
       "stopping_behavior": "No unexpected mutation; no merge before evidence capture.",
@@ -209,7 +217,7 @@
         "C"
       ],
       "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before PR event; obtain current-head approval.",
-      "event_mutation_sequence": "OPEN \u2192 synchronize \u2192 ready_for_review \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on eligible fixture.",
+      "event_mutation_sequence": "OPEN(H1 as ready-for-review) \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on this scenario's isolated target branch.",
       "evidence_requirements": "Repository/PR/event/head/base/diff, approval bound to current head, CI and required checks.",
       "expected_observations": "All arms disposition eligible; StateGate VALID and proof binds current object.",
       "stopping_behavior": "No unexpected mutation; no merge before evidence capture.",

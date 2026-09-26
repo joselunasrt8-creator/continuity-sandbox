@@ -14,6 +14,8 @@ Use UTC RFC 3339 ending in `Z`, with fractional seconds only where source suppor
 
 Each field contributes exactly 0 or 1. Empty arrays count only when an eligible source proves zero items. `evidence_completeness_percent = 100 × sum(E01..E32) / 32`; retain numerator, failed field IDs and source mapping even though the outcome object records the percentage. The denominator and definitions are identical across arms; arm-specific artifacts can supply a common field but never add denominator fields.
 
+E32 is arm-neutral packet provenance. The coordinator creates `provenance.source_inventory` in every standardized packet using the same procedure: one entry per eligible durable source actually used, with source kind, immutable URL or API object identity, UTC capture timestamp, and SHA-256 over its exact retained bytes. At least one entry is required, every entry must resolve to retained bytes, and any common-collector entry invalidates E32. The inventory describes eligible inputs; it cannot make an absent E01–E31 field present.
+
 ## Arm-specific evidence
 
 - **A:** GitHub PR timeline, reviews, required-check/ruleset state, CI logs/artifacts, mergeability and merged object.

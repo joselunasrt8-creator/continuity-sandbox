@@ -36,6 +36,7 @@ jobs:
       - name: Capture common read-only evidence
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          CONFIG_READ_TOKEN: ${{ secrets.BENCHMARK_ADMIN_READ_TOKEN }}
           BENCHMARK_SCENARIO_ID: ${{ vars.BENCHMARK_SCENARIO_ID }}
           BENCHMARK_ARM: ${{ vars.BENCHMARK_ARM }}
           PR_NUMBER: ${{ inputs.pr_number }}

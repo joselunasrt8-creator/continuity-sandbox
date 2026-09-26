@@ -1,7 +1,7 @@
 {
-  "manifest_version": "1.1.0",
+  "manifest_version": "1.2.0",
   "experiment_id": "stategate-mechanism-outcome-v1",
-  "protocol_version": "1.1.0",
+  "protocol_version": "1.2.0",
   "protocol_status": "PROTOCOL_FROZEN",
   "owner_repository": "joselunasrt8-creator/continuity-sandbox",
   "primary_issue": 43,
@@ -23,6 +23,9 @@
     "tag_object_sha": "f1717c67ce8cef1f69a3c5af1081cd493f7eb724",
     "immutable_commit_sha": "dd6a607533b0c5c31eb99840e39d0a443998541a",
     "release_manifest_sha256": "sha256:e5faa5c90dfb275a9c7628a13c801a62f5fb6ea60cb098dc11d4ab016cf0ce50",
+    "pinned_commit_tree_sha1": "ea9e6482f88dc8c41c4d2a5fe3e20f4c27808cf5",
+    "release_manifest_file_sha256": "sha256:f797073269e75d14e3be80824e1cb37a75ce81f44fbcc5c8f5e0d2f3e40449e5",
+    "guard_file_sha256": "sha256:13c5ce0190838f2eb579acd475f889375a99e1cf7508942d9b5969e7cca0e407",
     "uses": "joselunasrt8-creator/stategate@dd6a607533b0c5c31eb99840e39d0a443998541a",
     "proof_schema_version": "1.1.0",
     "review_binding": "require_review_approval=true; minimum_approvals=1; reviewed_head_sha must equal validated head"
@@ -75,11 +78,15 @@
     "manifest": "fixtures/FIXTURE_MANIFEST.json",
     "base_blob_sha1": "9718dabf3fde82f17b09942ae660ad358e921175",
     "base_single_file_tree_sha1": "d2e0a38434449c6de23adad9777e3397883d8c5a",
-    "matched_diff_requirement": "Canonical staged GitHub diff hashes equal across A/B/C before a matched set starts."
+    "matched_diff_requirement": "Canonical staged GitHub diff hashes equal across A/B/C before a matched set starts.",
+    "episode_target_branch": "bench/<scenario_id>/base",
+    "episode_head_branch": "bench/<scenario_id>/head",
+    "isolation_rule": "24 unique protected target branches per arm repository, all created at the recorded arm base before the cohort; no target reuse or reset."
   },
   "execution_prerequisites": [
-    "Three disposable repositories with active native rules and no trial bypass",
+    "Three disposable repositories, each with 24 unique scenario target branches at the frozen arm base and active identical native rules with no bypass",
     "Byte-identical common collector installed in all arms with BENCHMARK_SCENARIO_ID and BENCHMARK_ARM configured before every event",
+    "BENCHMARK_ADMIN_READ_TOKEN provisioned identically with Administration read-only and no write capability; branch-protection and ruleset GET preflight returns HTTP 200",
     "Exact fixture base bytes/tree and staged canonical diff equality verified across arms before each matched set",
     "An already-authorized approving reviewer distinct from each PR author; no recruitment under issue #43",
     "Read-only repository/PR data collection plus artifact-upload scope only; verify StateGate and artifact action identities; no code, PR, checks, or merge write scope."

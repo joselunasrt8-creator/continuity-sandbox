@@ -1,5 +1,5 @@
 {
-  "catalog_version": "1.0.0",
+  "catalog_version": "1.1.0",
   "terminal_metric": "evidence_completeness_percent",
   "scoring_rule": "Build a standardized mechanism packet using only the arm's eligible durable sources, then score one point only when the atomic field is explicit, non-null, source-verifiable against the independent common collector, and valid under its rule. A uses GitHub-native durable PR/review/check/run/rule/log surfaces; B uses those plus its snapshot; C uses those plus its StateGate check/proof. The common collector is answer-key instrumentation and is forbidden as a packet source. Arrays may be empty when an eligible source proves zero items. Denominator is the count of terminal_metric entries applicable to the scenario class.",
   "eligible_packet_sources": {
@@ -40,7 +40,7 @@
     {"id":"E29","path":"collection_ended_at","validation":"UTC RFC 3339 date-time not before start","applicable_classes":["C1","C2","C3","C4","C5","C6"],"terminal_metric":true},
     {"id":"E30","path":"collection_status","validation":"equals CONSISTENT","applicable_classes":["C1","C2","C3","C4","C5","C6"],"terminal_metric":true},
     {"id":"E31","path":"provenance.api_version","validation":"equals 2022-11-28","applicable_classes":["C1","C2","C3","C4","C5","C6"],"terminal_metric":true},
-    {"id":"E32","path":"provenance.collector","validation":"equals common-collector.mjs@1.0.0 and source hash matches freeze manifest","applicable_classes":["C1","C2","C3","C4","C5","C6"],"terminal_metric":true}
+    {"id":"E32","path":"provenance.source_inventory","validation":"non-empty array created under the common packet-building procedure; every entry identifies an eligible arm source by source kind, immutable URL or API object identity, capture timestamp, and sha256:<64 lowercase hex> over exact retained bytes; no entry may identify common-collector output","applicable_classes":["C1","C2","C3","C4","C5","C6"],"terminal_metric":true}
   ],
   "denominators": {"C1":32,"C2":32,"C3":32,"C4":32,"C5":32,"C6":32},
   "arm_specific_fields_excluded_from_terminal_metric": {

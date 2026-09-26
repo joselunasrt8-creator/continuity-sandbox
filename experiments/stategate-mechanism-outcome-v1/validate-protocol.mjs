@@ -22,6 +22,8 @@ const ids = scenarios.scenarios.map(row => row.scenario_id)
 assert(ids.length === 24 && new Set(ids).size === 24, 'must contain exactly 24 unique scenario IDs')
 assert(scenarios.scenario_classes.length === 6, 'must contain six scenario classes')
 assert(scenarios.design.matched_sets === 24 && scenarios.design.maximum_pr_episodes === 72, 'design count mismatch')
+assert(scenarios.design.episode_isolation?.repository_count === 3 && scenarios.design.episode_isolation?.required_branch_count_per_repository === 24, 'episode branch isolation count drift')
+assert(scenarios.design.episode_isolation?.target_branch_template === 'bench/<scenario_id>/base', 'episode target branch template drift')
 for (const cls of scenarios.scenario_classes) {
   const rows = scenarios.scenarios.filter(row => row.scenario_class_id === cls.scenario_class_id)
   assert(rows.length === 4, cls.scenario_class_id + ' must have four repetitions')
@@ -36,6 +38,7 @@ for (const row of scenarios.scenarios) {
   assert(row.ground_truth.eligible === planned, row.scenario_id + ' ground truth disagrees with frozen class')
   assert(row.matched_arms.join(',') === 'A,B,C', row.scenario_id + ' arm coverage invalid')
   assert(row.ground_truth.source.includes('arm output is excluded'), row.scenario_id + ' ground truth not arm-independent')
+  if (row.scenario_class_id === 'C1') assert(!row.event_mutation_sequence.includes('synchronize') && row.event_mutation_sequence.startsWith('OPEN(H1 as ready-for-review)'), row.scenario_id + ' has impossible C1 event sequence')
   for (const field of ['setup_procedure', 'ground_truth', 'event_mutation_sequence', 'evidence_requirements', 'expected_observations', 'stopping_behavior', 'permitted_deviations']) {
     assert(row[field] != null, row.scenario_id + ' missing ' + field)
   }
@@ -43,11 +46,14 @@ for (const row of scenarios.scenarios) {
 assert(scenarios.fixture_binding.manifest === 'fixtures/FIXTURE_MANIFEST.json', 'scenario fixture binding missing')
 assert(scenarios.offline_replay.classes.join(',') === 'C6', 'offline replay class drift')
 assert(scenarios.offline_replay.network_rule.includes('disabled'), 'offline replay must prohibit network')
+assert(scenarios.offline_replay.required_input_fields.native_input.join(',') === 'expected_head_sha,expected_base_sha,expected_diff_sha256', 'replay native input must not accept derived eligibility booleans')
 
 const pin = 'dd6a607533b0c5c31eb99840e39d0a443998541a'
 assert(/^[0-9a-f]{40}$/.test(manifest.stategate.immutable_commit_sha), 'StateGate pin must be full commit SHA')
 assert(manifest.stategate.immutable_commit_sha === pin, 'StateGate pin drift')
 assert(manifest.stategate.uses.endsWith('@' + pin), 'StateGate uses ref not immutable pin')
+assert(manifest.stategate.pinned_commit_tree_sha1 === 'ea9e6482f88dc8c41c4d2a5fe3e20f4c27808cf5', 'StateGate commit tree drift')
+assert(manifest.stategate.release_manifest_file_sha256 === 'sha256:f797073269e75d14e3be80824e1cb37a75ce81f44fbcc5c8f5e0d2f3e40449e5', 'StateGate release manifest byte hash drift')
 assert(manifest.scenario_execution_authorized === false && manifest.outcomes_collected === false, 'protocol-only terminal must be explicit')
 assert(scenarios.design.execution_authorized === false, 'scenario execution must remain unauthorized')
 assert(classifier.terminal_values.join(',') === 'MEASURABLE_IMPROVEMENT,NO_MATERIAL_DIFFERENCE,MEASURABLE_HARM,TOO_COSTLY,BLOCKED,INDETERMINATE', 'terminal classifier values/order changed')
@@ -60,6 +66,8 @@ for (const cls of ['C1', 'C2', 'C3', 'C4', 'C5', 'C6']) {
   const denominator = evidence.fields.filter(field => field.terminal_metric && field.applicable_classes.includes(cls)).length
   assert(evidence.denominators[cls] === denominator && denominator === 32, cls + ' completeness denominator drift')
 }
+const e32 = evidence.fields.find(field => field.id === 'E32')
+assert(e32?.path === 'provenance.source_inventory' && e32.validation.includes('no entry may identify common-collector output'), 'E32 must be attainable arm-neutral source provenance')
 
 function gitObjectHash(type, bytes) {
   return sha('sha1', Buffer.concat([Buffer.from(type + ' ' + bytes.length + '\0'), bytes]))
@@ -204,12 +212,19 @@ assert(!/contents:\s*write|pull-requests:\s*write|checks:\s*write/.test(stategat
 const commonCollector = await readFile(join(root, 'common-collector.mjs'), 'utf8')
 assert(commonCollector.includes('prStart') && commonCollector.includes('prEnd') && commonCollector.includes('reviewsStart') && commonCollector.includes('reviewsEnd'), 'common collector lacks consistency bracket')
 assert(commonCollector.includes('/protection') && commonCollector.includes('/rulesets') && commonCollector.includes('/check-runs') && commonCollector.includes('/artifacts'), 'common collector endpoint coverage incomplete')
+assert(commonCollector.includes('check-runs?filter=all&per_page=100'), 'common collector must preserve all check-run attempts')
+assert(commonCollector.includes('CONFIG_READ_TOKEN') && commonCollector.includes('configReadToken'), 'common collector lacks separate configuration read credential')
+const commonWorkflow = await readFile(join(root, 'common-collector.yml'), 'utf8')
+assert(commonWorkflow.includes('CONFIG_READ_TOKEN: ${{ secrets.BENCHMARK_ADMIN_READ_TOKEN }}'), 'common workflow lacks Administration read-only secret binding')
 const snapshot = await readFile(join(root, 'snapshot-collector.mjs'), 'utf8')
 assert(!/mergePullRequest|merge_pull_request|decision\s*=\s*['"]eligible/i.test(snapshot), 'snapshot comparator must not decide or merge')
 assert(snapshot.includes('event_payload_sha256') && snapshot.includes('stable_object') && snapshot.includes('stable_reviews'), 'snapshot lacks trigger identity or consistency check')
 const replay = await readFile(join(root, 'replay-evidence.mjs'), 'utf8')
 assert(!/\bfetch\s*\(/.test(replay), 'offline replay must not contain network fetch')
 assert(replay.includes(pin) && replay.includes('validateMergeGuard'), 'offline replay lacks pinned StateGate validation')
+assert(!/native\.(fixture_ci_success|current_head_approval|native_rules_verified)/.test(replay), 'offline replay trusts caller-supplied native eligibility facts')
+assert(replay.includes("check.name === 'fixture-ci'") && replay.includes("review.state === 'APPROVED'") && replay.includes('required_pull_request_reviews'), 'offline replay does not derive native eligibility from packet')
+assert(replay.includes("status', '--porcelain=v1', '--untracked-files=all") && replay.includes("HEAD^{tree}") && replay.includes('for (const file of release.files)'), 'offline replay lacks clean pinned tree/release file verification')
 
 const placeholder = {}
 for (const key of requiredFields) placeholder[key] = null
