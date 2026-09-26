@@ -1,0 +1,44 @@
+{
+  "freeze_manifest_version": "1.0.0",
+  "freeze_status": "PROTOCOL_FROZEN",
+  "experiment_id": "stategate-mechanism-outcome-v1",
+  "protocol_commit_sha": "d3e518df008d41ac01f3d9bb110d743f6dca3287",
+  "repository": "joselunasrt8-creator/continuity-sandbox",
+  "protocol_artifact_hashes": {
+    "PROTOCOL.md": "sha256:58e472106d0b3cf61e1040dbec0d88127bca03bc8d4fcfbed08661d6690147e9",
+    "SCENARIOS.json": "sha256:3db3462d9b9dc2317a0585042f9c7a04239341301b8d3da48ca96c3722c52737",
+    "OUTCOME_OBJECT.schema.json": "sha256:182e0e30ab543f1074c80ee6cd784d266db8293ba0c9ffa7efaa48f3a917481a",
+    "TERMINAL_CLASSIFIER.json": "sha256:4a8835943f7c4afdb95e95ed26f71402c1ff6cc2d29cb75f4d3429ac4f1725b7",
+    "experiment-manifest.json": "sha256:6d8a395680b7084d70cc45647a6ef9a2b6104f13c6e0fd13898ba23f165ae158",
+    "evidence-requirements.md": "sha256:206e534864e968914b3596b9d982a45fcd3957fd16be5807db43323ddb62fcff",
+    "analysis-plan.md": "sha256:01e86ea59507f8715d0028ba7317eb925457c258a7cd4052271ff12989b226f0",
+    "snapshot-collector.mjs": "sha256:f536b1e6b6940d67ca4d7390c2abab0fba881eb171f869c5c66384855a98b13f",
+    "snapshot-collector.yml": "sha256:74f8c4eaa4c86e8e00da476d6d6ede776b13db6437238f3a36b5c288c06f496d",
+    "fixture-ci.yml": "sha256:ae99b15f78243b66ab8cfac643b2a3a9fa5db0cf466543941ed707896462e76a",
+    "stategate-required-check.yml": "sha256:ca61f31b48726dc1d8ff89451eb4a67402b18f8369814fa0ffeeb15a2336531b",
+    "validate-protocol.mjs": "sha256:2d87d88570c9581d047ab9d6d0d0769245997b078ce6001353ab5158c45ffa76"
+  },
+  "hash_algorithm": "SHA-256 over exact committed file bytes",
+  "hashing_scope": "All committed frozen protocol artifacts as present at protocol_commit_sha, excluding this freeze-manifest.json. This avoids a self-referential content hash. The freeze-manifest hash and final freeze commit SHA are recorded in the review PR description.",
+  "stategate_pin": "dd6a607533b0c5c31eb99840e39d0a443998541a",
+  "scenario_execution_authorized": false,
+  "experimental_outcomes_collected": false,
+  "terminal": "PROTOCOL_FROZEN",
+  "source_base_commit": "c5da7279eee2ac0c750c7f7f7b16bb6f65903174",
+  "validation": {
+    "scenario_ids": "PASS: 24 unique IDs; six classes; four repetitions/class; 24 matched sets; 72 maximum PR episodes; execution order and arm order precomputed.",
+    "cross_references": "PASS: scenario IDs/classes/arms, metric names, terminal values, pins, workflow refs and artifact inventory checked by validate-protocol.mjs.",
+    "outcome_schema": "PASS: JSON Schema Draft 2020-12 compilation and structural placeholder validation with Ajv 8; no placeholder was saved as an outcome.",
+    "machine_files": "PASS: all JSON and YAML parsed; collector and validator pass node --check; deterministic StateGate/snapshot diff-hash normalization parity check passed on synthetic text.",
+    "stategate_release": "PASS: v1.1.1 at exact commit dd6a607533b0c5c31eb99840e39d0a443998541a; release conformance suite 90/90 deterministic unit/conformance cases passed.",
+    "native_baseline": "PASS: exact required PR, 1 approval, stale/current-push protection, strict up-to-date, fixture-ci, administrator enforcement, no bypass; live disposable-repository configuration remains a future pre-execution gate.",
+    "snapshot_comparator": "PASS: dependency-free GET-only evidence exporter; no eligibility/merge logic; exact fields and workflow frozen.",
+    "authority_boundary": "PASS: no StateGate merge/code/PR/check write; GitHub/operator remains authority; artifact upload scope is the only extra documented workflow capability.",
+    "experimental_outcomes": "NONE: no scenario PRs created, no outcomes collected, blinded reconstruction not performed."
+  },
+  "future_execution_blockers": [
+    "Verify three disposable repositories instantiate exact native controls and Arm C required check; if not, BLOCKED.",
+    "Confirm an already-authorized reviewer distinct from each PR author; no recruitment in #43.",
+    "Resolve the StateGate composite Action internal actions/upload-artifact@v4 reference from run logs and confirm evidence retention before trials; otherwise BLOCKED."
+  ]
+}
