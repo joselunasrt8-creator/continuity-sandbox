@@ -2,6 +2,66 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/joselunasrt8-creator/continuity-sandbox/blob/main/experiments/stategate-mechanism-outcome-v1/OUTCOME_OBJECT.schema.json",
   "title": "StateGate mechanism-to-outcome PR episode",
+  "x-null-requires-missingness": [
+    "repository.id",
+    "pull_request.number",
+    "pull_request.url",
+    "pull_request.event_id",
+    "head.event_sha",
+    "head.decision_sha",
+    "head.executed_sha",
+    "base.event_sha",
+    "base.decision_sha",
+    "timestamps.opened_at",
+    "timestamps.event_at",
+    "timestamps.decision_at",
+    "timestamps.execution_at",
+    "timestamps.collection_started_at",
+    "timestamps.collection_ended_at",
+    "timestamps.native_checks_success_at",
+    "observed_eligible",
+    "execution_outcome",
+    "false_allow",
+    "false_block",
+    "missed_invalid_state",
+    "decision_time_seconds",
+    "added_gating_delay_seconds",
+    "operator_handling_seconds",
+    "event_counts.pushes",
+    "event_counts.workflow_runs",
+    "event_counts.reruns",
+    "event_counts.reviews_submitted",
+    "event_counts.reviews_dismissed",
+    "rework.corrective_pushes",
+    "rework.review_cycles",
+    "rework.reruns",
+    "rework.evidence_repairs",
+    "evidence_completeness_percent",
+    "proof_fidelity",
+    "audit_reconstruction_seconds",
+    "audit_reconstruction_correct",
+    "ci_elapsed_seconds",
+    "ci_billable_minutes",
+    "manual_interventions",
+    "manual_intervention_seconds",
+    "reproducibility",
+    "decision_changed_vs_A",
+    "economic_proxy.labor_cost",
+    "economic_proxy.ci_cost",
+    "economic_proxy.currency",
+    "economic_proxy.rate_source",
+    "provenance.collector_version",
+    "provenance.collector_sha256",
+    "provenance.workflow_sha",
+    "provenance.stategate_sha",
+    "diff_identity.intended_sha256",
+    "diff_identity.observed_sha256",
+    "diff_identity.executed_sha256",
+    "diff_identity.canonicalization",
+    "review_state.decision_head_sha",
+    "review_state.approval_count",
+    "review_state.evidence_sha256"
+  ],
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -46,7 +106,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "1.0.0"
+      "const": "1.1.0"
     },
     "scenario_id": {
       "type": "string",
@@ -193,43 +253,57 @@
           "type": [
             "null",
             "string"
-          ]
+          ],
+          "format": "date-time",
+          "pattern": "Z$"
         },
         "event_at": {
           "type": [
             "null",
             "string"
-          ]
+          ],
+          "format": "date-time",
+          "pattern": "Z$"
         },
         "decision_at": {
           "type": [
             "null",
             "string"
-          ]
+          ],
+          "format": "date-time",
+          "pattern": "Z$"
         },
         "execution_at": {
           "type": [
             "null",
             "string"
-          ]
+          ],
+          "format": "date-time",
+          "pattern": "Z$"
         },
         "collection_started_at": {
           "type": [
             "null",
             "string"
-          ]
+          ],
+          "format": "date-time",
+          "pattern": "Z$"
         },
         "collection_ended_at": {
           "type": [
             "null",
             "string"
-          ]
+          ],
+          "format": "date-time",
+          "pattern": "Z$"
         },
         "native_checks_success_at": {
           "type": [
             "null",
             "string"
-          ]
+          ],
+          "format": "date-time",
+          "pattern": "Z$"
         }
       }
     },
@@ -426,7 +500,8 @@
       "type": [
         "null",
         "integer"
-      ]
+      ],
+      "minimum": 0
     },
     "manual_intervention_seconds": {
       "type": [
@@ -703,5 +778,2164 @@
         }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "repository": {
+            "properties": {
+              "id": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
+        },
+        "required": [
+          "repository"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "repository.id"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "pull_request": {
+            "properties": {
+              "number": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "number"
+            ]
+          }
+        },
+        "required": [
+          "pull_request"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "pull_request.number"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "pull_request": {
+            "properties": {
+              "url": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "url"
+            ]
+          }
+        },
+        "required": [
+          "pull_request"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "pull_request.url"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "pull_request": {
+            "properties": {
+              "event_id": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "event_id"
+            ]
+          }
+        },
+        "required": [
+          "pull_request"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "pull_request.event_id"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "head": {
+            "properties": {
+              "event_sha": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "event_sha"
+            ]
+          }
+        },
+        "required": [
+          "head"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "head.event_sha"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "head": {
+            "properties": {
+              "decision_sha": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "decision_sha"
+            ]
+          }
+        },
+        "required": [
+          "head"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "head.decision_sha"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "head": {
+            "properties": {
+              "executed_sha": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "executed_sha"
+            ]
+          }
+        },
+        "required": [
+          "head"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "head.executed_sha"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "base": {
+            "properties": {
+              "event_sha": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "event_sha"
+            ]
+          }
+        },
+        "required": [
+          "base"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "base.event_sha"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "base": {
+            "properties": {
+              "decision_sha": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "decision_sha"
+            ]
+          }
+        },
+        "required": [
+          "base"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "base.decision_sha"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "timestamps": {
+            "properties": {
+              "opened_at": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "opened_at"
+            ]
+          }
+        },
+        "required": [
+          "timestamps"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "timestamps.opened_at"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "timestamps": {
+            "properties": {
+              "event_at": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "event_at"
+            ]
+          }
+        },
+        "required": [
+          "timestamps"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "timestamps.event_at"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "timestamps": {
+            "properties": {
+              "decision_at": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "decision_at"
+            ]
+          }
+        },
+        "required": [
+          "timestamps"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "timestamps.decision_at"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "timestamps": {
+            "properties": {
+              "execution_at": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "execution_at"
+            ]
+          }
+        },
+        "required": [
+          "timestamps"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "timestamps.execution_at"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "timestamps": {
+            "properties": {
+              "collection_started_at": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "collection_started_at"
+            ]
+          }
+        },
+        "required": [
+          "timestamps"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "timestamps.collection_started_at"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "timestamps": {
+            "properties": {
+              "collection_ended_at": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "collection_ended_at"
+            ]
+          }
+        },
+        "required": [
+          "timestamps"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "timestamps.collection_ended_at"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "timestamps": {
+            "properties": {
+              "native_checks_success_at": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "native_checks_success_at"
+            ]
+          }
+        },
+        "required": [
+          "timestamps"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "timestamps.native_checks_success_at"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "observed_eligible": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "observed_eligible"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "observed_eligible"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "execution_outcome": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "execution_outcome"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "execution_outcome"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "false_allow": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "false_allow"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "false_allow"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "false_block": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "false_block"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "false_block"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "missed_invalid_state": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "missed_invalid_state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "missed_invalid_state"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decision_time_seconds": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "decision_time_seconds"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "decision_time_seconds"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "added_gating_delay_seconds": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "added_gating_delay_seconds"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "added_gating_delay_seconds"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operator_handling_seconds": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "operator_handling_seconds"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "operator_handling_seconds"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_counts": {
+            "properties": {
+              "pushes": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "pushes"
+            ]
+          }
+        },
+        "required": [
+          "event_counts"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "event_counts.pushes"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_counts": {
+            "properties": {
+              "workflow_runs": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "workflow_runs"
+            ]
+          }
+        },
+        "required": [
+          "event_counts"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "event_counts.workflow_runs"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_counts": {
+            "properties": {
+              "reruns": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "reruns"
+            ]
+          }
+        },
+        "required": [
+          "event_counts"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "event_counts.reruns"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_counts": {
+            "properties": {
+              "reviews_submitted": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "reviews_submitted"
+            ]
+          }
+        },
+        "required": [
+          "event_counts"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "event_counts.reviews_submitted"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_counts": {
+            "properties": {
+              "reviews_dismissed": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "reviews_dismissed"
+            ]
+          }
+        },
+        "required": [
+          "event_counts"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "event_counts.reviews_dismissed"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "rework": {
+            "properties": {
+              "corrective_pushes": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "corrective_pushes"
+            ]
+          }
+        },
+        "required": [
+          "rework"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "rework.corrective_pushes"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "rework": {
+            "properties": {
+              "review_cycles": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "review_cycles"
+            ]
+          }
+        },
+        "required": [
+          "rework"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "rework.review_cycles"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "rework": {
+            "properties": {
+              "reruns": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "reruns"
+            ]
+          }
+        },
+        "required": [
+          "rework"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "rework.reruns"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "rework": {
+            "properties": {
+              "evidence_repairs": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "evidence_repairs"
+            ]
+          }
+        },
+        "required": [
+          "rework"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "rework.evidence_repairs"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "evidence_completeness_percent": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "evidence_completeness_percent"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "evidence_completeness_percent"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "proof_fidelity": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "proof_fidelity"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "proof_fidelity"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "audit_reconstruction_seconds": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "audit_reconstruction_seconds"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "audit_reconstruction_seconds"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "audit_reconstruction_correct": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "audit_reconstruction_correct"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "audit_reconstruction_correct"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "ci_elapsed_seconds": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "ci_elapsed_seconds"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "ci_elapsed_seconds"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "ci_billable_minutes": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "ci_billable_minutes"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "ci_billable_minutes"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "manual_interventions": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "manual_interventions"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "manual_interventions"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "manual_intervention_seconds": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "manual_intervention_seconds"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "manual_intervention_seconds"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "reproducibility": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "reproducibility"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "reproducibility"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decision_changed_vs_A": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "decision_changed_vs_A"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "decision_changed_vs_A"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "economic_proxy": {
+            "properties": {
+              "labor_cost": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "labor_cost"
+            ]
+          }
+        },
+        "required": [
+          "economic_proxy"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "economic_proxy.labor_cost"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "economic_proxy": {
+            "properties": {
+              "ci_cost": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "ci_cost"
+            ]
+          }
+        },
+        "required": [
+          "economic_proxy"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "economic_proxy.ci_cost"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "economic_proxy": {
+            "properties": {
+              "currency": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "currency"
+            ]
+          }
+        },
+        "required": [
+          "economic_proxy"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "economic_proxy.currency"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "economic_proxy": {
+            "properties": {
+              "rate_source": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "rate_source"
+            ]
+          }
+        },
+        "required": [
+          "economic_proxy"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "economic_proxy.rate_source"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "provenance": {
+            "properties": {
+              "collector_version": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "collector_version"
+            ]
+          }
+        },
+        "required": [
+          "provenance"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "provenance.collector_version"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "provenance": {
+            "properties": {
+              "collector_sha256": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "collector_sha256"
+            ]
+          }
+        },
+        "required": [
+          "provenance"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "provenance.collector_sha256"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "provenance": {
+            "properties": {
+              "workflow_sha": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "workflow_sha"
+            ]
+          }
+        },
+        "required": [
+          "provenance"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "provenance.workflow_sha"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "provenance": {
+            "properties": {
+              "stategate_sha": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "stategate_sha"
+            ]
+          }
+        },
+        "required": [
+          "provenance"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "provenance.stategate_sha"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "diff_identity": {
+            "properties": {
+              "intended_sha256": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "intended_sha256"
+            ]
+          }
+        },
+        "required": [
+          "diff_identity"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "diff_identity.intended_sha256"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "diff_identity": {
+            "properties": {
+              "observed_sha256": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "observed_sha256"
+            ]
+          }
+        },
+        "required": [
+          "diff_identity"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "diff_identity.observed_sha256"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "diff_identity": {
+            "properties": {
+              "executed_sha256": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "executed_sha256"
+            ]
+          }
+        },
+        "required": [
+          "diff_identity"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "diff_identity.executed_sha256"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "diff_identity": {
+            "properties": {
+              "canonicalization": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "canonicalization"
+            ]
+          }
+        },
+        "required": [
+          "diff_identity"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "diff_identity.canonicalization"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "review_state": {
+            "properties": {
+              "decision_head_sha": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "decision_head_sha"
+            ]
+          }
+        },
+        "required": [
+          "review_state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "review_state.decision_head_sha"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "review_state": {
+            "properties": {
+              "approval_count": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "approval_count"
+            ]
+          }
+        },
+        "required": [
+          "review_state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "review_state.approval_count"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "review_state": {
+            "properties": {
+              "evidence_sha256": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "evidence_sha256"
+            ]
+          }
+        },
+        "required": [
+          "review_state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "review_state.evidence_sha256"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
+    }
+  ,
+    {
+      "if": {"properties": {"observed_eligible": {"const": null}}},
+      "then": {"properties": {"false_allow": {"const": null}, "false_block": {"const": null}}}
+    },
+    {
+      "if": {"properties": {"ground_truth_eligible": {"const": false}, "observed_eligible": {"const": true}}, "required": ["ground_truth_eligible", "observed_eligible"]},
+      "then": {"properties": {"false_allow": {"const": true}, "false_block": {"const": false}}}
+    },
+    {
+      "if": {"properties": {"ground_truth_eligible": {"const": true}, "observed_eligible": {"const": false}}, "required": ["ground_truth_eligible", "observed_eligible"]},
+      "then": {"properties": {"false_allow": {"const": false}, "false_block": {"const": true}}}
+    },
+    {
+      "if": {"properties": {"ground_truth_eligible": {"const": true}, "observed_eligible": {"const": true}}, "required": ["ground_truth_eligible", "observed_eligible"]},
+      "then": {"properties": {"false_allow": {"const": false}, "false_block": {"const": false}}}
+    },
+    {
+      "if": {"properties": {"ground_truth_eligible": {"const": false}, "observed_eligible": {"const": false}}, "required": ["ground_truth_eligible", "observed_eligible"]},
+      "then": {"properties": {"false_allow": {"const": false}, "false_block": {"const": false}}}
+    }
+  ]
 }

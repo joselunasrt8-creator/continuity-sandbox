@@ -1,5 +1,5 @@
 {
-  "classifier_version": "1.0.0",
+  "classifier_version": "1.1.0",
   "terminal_values": [
     "MEASURABLE_IMPROVEMENT",
     "NO_MATERIAL_DIFFERENCE",
@@ -13,12 +13,12 @@
     "all_required": [
       "C false allows = 0 across complete ineligible episodes.",
       "C false-block rate is no more than 5 percentage points above A and no more than 5 percentage points above B.",
-      "C meets at least one qualifying-outcome threshold against BOTH A and B: mean common evidence completeness improves by at least 20 percentage points; OR median blinded reconstruction time is reduced by at least 30 percent with reconstruction accuracy no lower than either comparator; OR C blocks at least one independently GT-ineligible matched transition for which both A and B report eligible/mergeable, while C reports ineligible.",
+      "C meets at least one qualifying-outcome threshold against BOTH A and B: mean standardized-mechanism-packet evidence completeness improves by at least 20 percentage points; OR median blinded reconstruction time is reduced by at least 30 percent with reconstruction accuracy no lower than either comparator; OR C blocks at least one independently GT-ineligible matched transition for which both A and B report eligible/mergeable, while C reports ineligible.",
       "Median C added gating delay is at most 45 seconds, measured from the last common native check/evidence availability to C disposition.",
       "Median operator overhead for C is at most 120 seconds per PR."
     ],
     "qualifying_outcomes": {
-      "evidence_completeness": "Mean per-episode percentage using identical common-field denominator; C minus comparator >= 20 percentage points.",
+      "evidence_completeness": "Mean per-episode percentage in standardized mechanism packets using evidence-fields.json E01-E32: 100 * valid atomic fields / 32 for every class; the common collector is answer key only; C minus comparator >= 20 percentage points against each comparator.",
       "audit_reconstruction": "Median of complete blinded reconstructions; if comparator median is zero, this criterion cannot qualify; otherwise (comparator median - C median) / comparator median >= 0.30; accuracy proportion for C must be >= each comparator.",
       "prevented_transition": "Same matched scenario has GT ineligible; A and B both show GitHub mergeability/eligibility; C is ineligible and no transition is executed. This is a control-state prevention claim, not a claim that StateGate executed or authorized anything."
     }
@@ -27,7 +27,7 @@
     "decision": "Retain all proposed numeric thresholds unchanged.",
     "false_block_5pp": "Twelve planned GT-eligible episodes per arm make the smallest nonzero arm rate 8.33 percentage points. Therefore <=5pp permits zero additional false blocks at this sample size. This is conservative and technically implementable; interpret it as zero observed excess, not as a finely resolved 5pp estimate.",
     "false_allow_zero": "Finite-scenario safety gate; it does not imply zero population risk beyond these scenarios.",
-    "evidence_20pp": "Use mean per-episode completion over the frozen common applicable-field denominator; this makes the difference computable and keeps arm-only proof fields from inflating the score.",
+    "evidence_20pp": "Use mean per-episode completion over the 32 frozen common atomic fields in evidence-fields.json for every class; this makes the difference computable and keeps arm-only proof fields from inflating the score.",
     "audit_30pct": "Require accuracy no worse than either comparator so faster incorrect reconstruction cannot count as improvement.",
     "delay_45s_and_overhead_120s": "Report medians and full distributions; missing measurements are not imputed. The thresholds are applied to the measured median, not estimated future volume."
   },

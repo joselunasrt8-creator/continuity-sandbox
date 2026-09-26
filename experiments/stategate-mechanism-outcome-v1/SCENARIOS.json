@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.0.0",
+  "manifest_version": "1.1.0",
   "design": {
     "scenario_classes": 6,
     "repetitions_per_class": 4,
@@ -39,6 +39,45 @@
       "SG-MO1-C3-R02"
     ],
     "randomization_algorithm": "Precomputed permutations below are normative; generated with CPython 3.12.14 random.Random (MT19937), scenario order shuffled from design seed and arm order shuffled from seed concatenated with scenario ID."
+  },
+  "fixture_binding": {
+    "manifest": "fixtures/FIXTURE_MANIFEST.json",
+    "base_tree_manifest": "fixtures/BASE_TREE_MANIFEST.json",
+    "target_path": "benchmark/benchmark-fixture.txt",
+    "normative_rule": "The manifest's exact BASE, H1 and H2 bytes, hashes, blob/tree identities, patch bytes, staging procedure and expected-diff preparation are mandatory. Descriptive words such as inert or fixture in rows below never authorize different bytes.",
+    "class_state_sequences": {
+      "C1": ["BASE", "H1"],
+      "C2": ["BASE", "H1", "H2"],
+      "C3": ["BASE", "H1", "H2"],
+      "C4": ["BASE", "H1", "H2"],
+      "C5": ["BASE", "H1"],
+      "C6": ["BASE", "H1"]
+    },
+    "arm_c_expected_diff_rule": {
+      "C1": "Prestage H1; configure/read back H1 diff hash before opening PR.",
+      "C2": "Prestage H1 and H2. Configure H1 before opening; after H1 approval configure/read back H2 hash before advancing PR branch to H2. The expected hash is current; stale approval is the intended invalidity.",
+      "C3": "Same pre-event H1/H2 configuration as C2, then approve H2.",
+      "C4": "Configure H1 before opening and deliberately do not change it before advancing to H2; exact-object mismatch is the intended invalidity.",
+      "C5": "Prestage H1; configure/read back H1 diff hash before opening PR. Missing approval is the intended invalidity.",
+      "C6": "Prestage H1; configure/read back H1 diff hash before opening PR, then archive exact StateGate inputs/proof for offline replay."
+    }
+  },
+  "offline_replay": {
+    "classes": ["C6"],
+    "input_format": "JSON replay_input_version 1.0.0 containing scenario_id, arm, one CONSISTENT common_packet, native_input, and for C only stategate_input plus archived_stategate_proof.",
+    "required_input_fields": {
+      "all_arms": ["replay_input_version", "scenario_id", "arm", "common_packet", "native_input"],
+      "native_input": ["expected_head_sha", "expected_base_sha", "expected_diff_sha256", "fixture_ci_success", "current_head_approval", "native_rules_verified"],
+      "arm_C_additional": ["stategate_input", "archived_stategate_proof"],
+      "stategate_input_rule": "Exact archived validateMergeGuard input after acquisition: repo, pr_number, head_sha, base_sha, actor, author/attribution inputs, pr_diff exact bytes, diff_source, expected_diff_hash, require_review_approval, minimum_approvals, normalized review_evidence, evaluated_head_sha and evaluated_base_sha; omit github_token and github_api_url."
+    },
+    "normalization": "UTF-8 JSON parsed then output serialized with JSON.stringify(value, null, 2) plus one LF; SHA-256 over exact input and output bytes.",
+    "commands": {
+      "A_or_B": "node replay-evidence.mjs --input replay-input.json --output replay-output-1.json; repeat to replay-output-2.json",
+      "C": "node replay-evidence.mjs --input replay-input.json --output replay-output-1.json --stategate-dir /path/to/stategate-dd6a607; repeat to replay-output-2.json"
+    },
+    "expected_output": "JSON replay_output_version 1.0.0 with scenario_id, arm, input_sha256, native {eligible,reasons}, stategate (null for A/B; decision/proof/archived_proof_equal for C), and observed_eligible. Both runs must have byte-identical output (there is no clock/run nonce), equal output SHA-256, and observed_eligible equal independently frozen ground truth. Arm C additionally requires archived_proof_equal=true, git checkout HEAD at the pinned commit, and the frozen release/tree/hash identities.",
+    "network_rule": "Run in a clean environment with outbound network disabled. No live GitHub acquisition or artifact substitution is permitted."
   },
   "scenario_classes": [
     {
@@ -88,7 +127,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Use identical inert README-only patch and current approval.",
+      "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before PR event; obtain current-head approval.",
       "event_mutation_sequence": "OPEN \u2192 synchronize \u2192 ready_for_review \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on eligible fixture.",
       "evidence_requirements": "Repository/PR/event/head/base/diff, approval bound to current head, CI and required checks.",
       "expected_observations": "All arms disposition eligible; StateGate VALID and proof binds current object.",
@@ -115,7 +154,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Use identical inert README-only patch and current approval.",
+      "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before PR event; obtain current-head approval.",
       "event_mutation_sequence": "OPEN \u2192 synchronize \u2192 ready_for_review \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on eligible fixture.",
       "evidence_requirements": "Repository/PR/event/head/base/diff, approval bound to current head, CI and required checks.",
       "expected_observations": "All arms disposition eligible; StateGate VALID and proof binds current object.",
@@ -142,7 +181,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Use identical inert README-only patch and current approval.",
+      "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before PR event; obtain current-head approval.",
       "event_mutation_sequence": "OPEN \u2192 synchronize \u2192 ready_for_review \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on eligible fixture.",
       "evidence_requirements": "Repository/PR/event/head/base/diff, approval bound to current head, CI and required checks.",
       "expected_observations": "All arms disposition eligible; StateGate VALID and proof binds current object.",
@@ -169,7 +208,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Use identical inert README-only patch and current approval.",
+      "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before PR event; obtain current-head approval.",
       "event_mutation_sequence": "OPEN \u2192 synchronize \u2192 ready_for_review \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on eligible fixture.",
       "evidence_requirements": "Repository/PR/event/head/base/diff, approval bound to current head, CI and required checks.",
       "expected_observations": "All arms disposition eligible; StateGate VALID and proof binds current object.",
@@ -196,7 +235,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Submit approval for H1; push an inert second commit H2; allow synchronize event/checks.",
+      "setup_procedure": "Apply exact BASE→H1→H2 bytes from fixtures/FIXTURE_MANIFEST.json; approve H1, prestage/hash and configure H2 before advancing the PR branch, then allow synchronize checks.",
       "event_mutation_sequence": "OPEN(H1) \u2192 approve(H1) \u2192 push(H2) \u2192 synchronize \u2192 inspect before reapproval.",
       "evidence_requirements": "Both head SHAs, diff hashes, review commit_id/state/timestamp, dismissal and check history.",
       "expected_observations": "Ineligible at H2 until current-head approval; A rules dismiss stale, B snapshot shows stale review, C must not validate stale approval.",
@@ -223,7 +262,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Submit approval for H1; push an inert second commit H2; allow synchronize event/checks.",
+      "setup_procedure": "Apply exact BASE→H1→H2 bytes from fixtures/FIXTURE_MANIFEST.json; approve H1, prestage/hash and configure H2 before advancing the PR branch, then allow synchronize checks.",
       "event_mutation_sequence": "OPEN(H1) \u2192 approve(H1) \u2192 push(H2) \u2192 synchronize \u2192 inspect before reapproval.",
       "evidence_requirements": "Both head SHAs, diff hashes, review commit_id/state/timestamp, dismissal and check history.",
       "expected_observations": "Ineligible at H2 until current-head approval; A rules dismiss stale, B snapshot shows stale review, C must not validate stale approval.",
@@ -250,7 +289,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Submit approval for H1; push an inert second commit H2; allow synchronize event/checks.",
+      "setup_procedure": "Apply exact BASE→H1→H2 bytes from fixtures/FIXTURE_MANIFEST.json; approve H1, prestage/hash and configure H2 before advancing the PR branch, then allow synchronize checks.",
       "event_mutation_sequence": "OPEN(H1) \u2192 approve(H1) \u2192 push(H2) \u2192 synchronize \u2192 inspect before reapproval.",
       "evidence_requirements": "Both head SHAs, diff hashes, review commit_id/state/timestamp, dismissal and check history.",
       "expected_observations": "Ineligible at H2 until current-head approval; A rules dismiss stale, B snapshot shows stale review, C must not validate stale approval.",
@@ -277,7 +316,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Submit approval for H1; push an inert second commit H2; allow synchronize event/checks.",
+      "setup_procedure": "Apply exact BASE→H1→H2 bytes from fixtures/FIXTURE_MANIFEST.json; approve H1, prestage/hash and configure H2 before advancing the PR branch, then allow synchronize checks.",
       "event_mutation_sequence": "OPEN(H1) \u2192 approve(H1) \u2192 push(H2) \u2192 synchronize \u2192 inspect before reapproval.",
       "evidence_requirements": "Both head SHAs, diff hashes, review commit_id/state/timestamp, dismissal and check history.",
       "expected_observations": "Ineligible at H2 until current-head approval; A rules dismiss stale, B snapshot shows stale review, C must not validate stale approval.",
@@ -304,7 +343,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Use same two-commit fixture; review H2 after synchronize.",
+      "setup_procedure": "Apply exact BASE→H1→H2 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash and configure H2 before advancing the PR branch, then review H2 after synchronize.",
       "event_mutation_sequence": "OPEN(H1) \u2192 push(H2) \u2192 approve(H2) \u2192 all native CI passes \u2192 capture \u2192 authorized merge.",
       "evidence_requirements": "Current head/diff, full review history, approval commit binding, required checks.",
       "expected_observations": "All arms eligible after reapproval; C VALID only on H2.",
@@ -331,7 +370,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Use same two-commit fixture; review H2 after synchronize.",
+      "setup_procedure": "Apply exact BASE→H1→H2 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash and configure H2 before advancing the PR branch, then review H2 after synchronize.",
       "event_mutation_sequence": "OPEN(H1) \u2192 push(H2) \u2192 approve(H2) \u2192 all native CI passes \u2192 capture \u2192 authorized merge.",
       "evidence_requirements": "Current head/diff, full review history, approval commit binding, required checks.",
       "expected_observations": "All arms eligible after reapproval; C VALID only on H2.",
@@ -358,7 +397,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Use same two-commit fixture; review H2 after synchronize.",
+      "setup_procedure": "Apply exact BASE→H1→H2 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash and configure H2 before advancing the PR branch, then review H2 after synchronize.",
       "event_mutation_sequence": "OPEN(H1) \u2192 push(H2) \u2192 approve(H2) \u2192 all native CI passes \u2192 capture \u2192 authorized merge.",
       "evidence_requirements": "Current head/diff, full review history, approval commit binding, required checks.",
       "expected_observations": "All arms eligible after reapproval; C VALID only on H2.",
@@ -385,7 +424,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Use same two-commit fixture; review H2 after synchronize.",
+      "setup_procedure": "Apply exact BASE→H1→H2 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash and configure H2 before advancing the PR branch, then review H2 after synchronize.",
       "event_mutation_sequence": "OPEN(H1) \u2192 push(H2) \u2192 approve(H2) \u2192 all native CI passes \u2192 capture \u2192 authorized merge.",
       "evidence_requirements": "Current head/diff, full review history, approval commit binding, required checks.",
       "expected_observations": "All arms eligible after reapproval; C VALID only on H2.",
@@ -412,7 +451,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Capture intended O1 head/base/diff snapshot; push changed O2; obtain current-head approval for O2 so native controls are otherwise satisfied. Arm C supplies the recorded O1 diff hash as EXPECTED_DIFF_HASH while the pinned action fetches current O2. Arm B retains O1 and O2 snapshots for comparison.",
+      "setup_procedure": "Apply exact BASE→H1(O1)→H2(O2) bytes from fixtures/FIXTURE_MANIFEST.json. Prestage both; Arm C retains configured O1 hash before advancing to O2. Obtain current-head approval for O2 so native controls are otherwise satisfied; Arm B retains O1 and O2 snapshots.",
       "event_mutation_sequence": "OPEN(H1/O1) \u2192 common snapshot O1 \u2192 push(H2/O2) \u2192 approve(H2) \u2192 CI passes \u2192 StateGate evaluates event H2/current diff against expected O1 hash \u2192 capture; do not merge because intended O1 != current O2.",
       "evidence_requirements": "Frozen O1 and current O2 snapshots/diff hashes, expected-diff-hash repository variable evidence, current review binding, event payload, check and proof.",
       "expected_observations": "A native controls may report current O2 eligible. B snapshots make O1/O2 difference auditable but do not gate it. C should fail closed on expected diff mismatch; any C eligibility is a false allow.",
@@ -439,7 +478,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Capture intended O1 head/base/diff snapshot; push changed O2; obtain current-head approval for O2 so native controls are otherwise satisfied. Arm C supplies the recorded O1 diff hash as EXPECTED_DIFF_HASH while the pinned action fetches current O2. Arm B retains O1 and O2 snapshots for comparison.",
+      "setup_procedure": "Apply exact BASE→H1(O1)→H2(O2) bytes from fixtures/FIXTURE_MANIFEST.json. Prestage both; Arm C retains configured O1 hash before advancing to O2. Obtain current-head approval for O2 so native controls are otherwise satisfied; Arm B retains O1 and O2 snapshots.",
       "event_mutation_sequence": "OPEN(H1/O1) \u2192 common snapshot O1 \u2192 push(H2/O2) \u2192 approve(H2) \u2192 CI passes \u2192 StateGate evaluates event H2/current diff against expected O1 hash \u2192 capture; do not merge because intended O1 != current O2.",
       "evidence_requirements": "Frozen O1 and current O2 snapshots/diff hashes, expected-diff-hash repository variable evidence, current review binding, event payload, check and proof.",
       "expected_observations": "A native controls may report current O2 eligible. B snapshots make O1/O2 difference auditable but do not gate it. C should fail closed on expected diff mismatch; any C eligibility is a false allow.",
@@ -466,7 +505,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Capture intended O1 head/base/diff snapshot; push changed O2; obtain current-head approval for O2 so native controls are otherwise satisfied. Arm C supplies the recorded O1 diff hash as EXPECTED_DIFF_HASH while the pinned action fetches current O2. Arm B retains O1 and O2 snapshots for comparison.",
+      "setup_procedure": "Apply exact BASE→H1(O1)→H2(O2) bytes from fixtures/FIXTURE_MANIFEST.json. Prestage both; Arm C retains configured O1 hash before advancing to O2. Obtain current-head approval for O2 so native controls are otherwise satisfied; Arm B retains O1 and O2 snapshots.",
       "event_mutation_sequence": "OPEN(H1/O1) \u2192 common snapshot O1 \u2192 push(H2/O2) \u2192 approve(H2) \u2192 CI passes \u2192 StateGate evaluates event H2/current diff against expected O1 hash \u2192 capture; do not merge because intended O1 != current O2.",
       "evidence_requirements": "Frozen O1 and current O2 snapshots/diff hashes, expected-diff-hash repository variable evidence, current review binding, event payload, check and proof.",
       "expected_observations": "A native controls may report current O2 eligible. B snapshots make O1/O2 difference auditable but do not gate it. C should fail closed on expected diff mismatch; any C eligibility is a false allow.",
@@ -493,7 +532,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Capture intended O1 head/base/diff snapshot; push changed O2; obtain current-head approval for O2 so native controls are otherwise satisfied. Arm C supplies the recorded O1 diff hash as EXPECTED_DIFF_HASH while the pinned action fetches current O2. Arm B retains O1 and O2 snapshots for comparison.",
+      "setup_procedure": "Apply exact BASE→H1(O1)→H2(O2) bytes from fixtures/FIXTURE_MANIFEST.json. Prestage both; Arm C retains configured O1 hash before advancing to O2. Obtain current-head approval for O2 so native controls are otherwise satisfied; Arm B retains O1 and O2 snapshots.",
       "event_mutation_sequence": "OPEN(H1/O1) \u2192 common snapshot O1 \u2192 push(H2/O2) \u2192 approve(H2) \u2192 CI passes \u2192 StateGate evaluates event H2/current diff against expected O1 hash \u2192 capture; do not merge because intended O1 != current O2.",
       "evidence_requirements": "Frozen O1 and current O2 snapshots/diff hashes, expected-diff-hash repository variable evidence, current review binding, event payload, check and proof.",
       "expected_observations": "A native controls may report current O2 eligible. B snapshots make O1/O2 difference auditable but do not gate it. C should fail closed on expected diff mismatch; any C eligibility is a false allow.",
@@ -520,7 +559,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Open ready PR with valid inert patch but no approval; allow required checks to finish.",
+      "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before opening a ready PR, provide no approval, and allow required checks to finish.",
       "event_mutation_sequence": "OPEN \u2192 ready_for_review \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
       "evidence_requirements": "Review API response/pagination, native rules, status checks, StateGate result/null reason, missingness source.",
       "expected_observations": "Ineligible in all arms because required approval/evidence absent; missing evidence is not imputed.",
@@ -547,7 +586,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Open ready PR with valid inert patch but no approval; allow required checks to finish.",
+      "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before opening a ready PR, provide no approval, and allow required checks to finish.",
       "event_mutation_sequence": "OPEN \u2192 ready_for_review \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
       "evidence_requirements": "Review API response/pagination, native rules, status checks, StateGate result/null reason, missingness source.",
       "expected_observations": "Ineligible in all arms because required approval/evidence absent; missing evidence is not imputed.",
@@ -574,7 +613,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Open ready PR with valid inert patch but no approval; allow required checks to finish.",
+      "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before opening a ready PR, provide no approval, and allow required checks to finish.",
       "event_mutation_sequence": "OPEN \u2192 ready_for_review \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
       "evidence_requirements": "Review API response/pagination, native rules, status checks, StateGate result/null reason, missingness source.",
       "expected_observations": "Ineligible in all arms because required approval/evidence absent; missing evidence is not imputed.",
@@ -601,7 +640,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Open ready PR with valid inert patch but no approval; allow required checks to finish.",
+      "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before opening a ready PR, provide no approval, and allow required checks to finish.",
       "event_mutation_sequence": "OPEN \u2192 ready_for_review \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
       "evidence_requirements": "Review API response/pagination, native rules, status checks, StateGate result/null reason, missingness source.",
       "expected_observations": "Ineligible in all arms because required approval/evidence absent; missing evidence is not imputed.",
@@ -628,7 +667,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Same setup as C1; freeze bytes, hash/index and normalized decision inputs before clean replay.",
+      "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json as in C1; freeze the CONSISTENT common packet and exact replay input before two clean offline replays.",
       "event_mutation_sequence": "OPEN \u2192 current approval \u2192 checks pass \u2192 capture common + arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
       "evidence_requirements": "Full common evidence packet, collector/snapshot/proof bytes, replay command/runtime identity and output hashes.",
       "expected_observations": "Eligible PR state; each arm replays its retained evidence using frozen common reference procedure; C additionally replays StateGate decision/proof from archived exact inputs.",
@@ -655,7 +694,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Same setup as C1; freeze bytes, hash/index and normalized decision inputs before clean replay.",
+      "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json as in C1; freeze the CONSISTENT common packet and exact replay input before two clean offline replays.",
       "event_mutation_sequence": "OPEN \u2192 current approval \u2192 checks pass \u2192 capture common + arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
       "evidence_requirements": "Full common evidence packet, collector/snapshot/proof bytes, replay command/runtime identity and output hashes.",
       "expected_observations": "Eligible PR state; each arm replays its retained evidence using frozen common reference procedure; C additionally replays StateGate decision/proof from archived exact inputs.",
@@ -682,7 +721,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Same setup as C1; freeze bytes, hash/index and normalized decision inputs before clean replay.",
+      "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json as in C1; freeze the CONSISTENT common packet and exact replay input before two clean offline replays.",
       "event_mutation_sequence": "OPEN \u2192 current approval \u2192 checks pass \u2192 capture common + arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
       "evidence_requirements": "Full common evidence packet, collector/snapshot/proof bytes, replay command/runtime identity and output hashes.",
       "expected_observations": "Eligible PR state; each arm replays its retained evidence using frozen common reference procedure; C additionally replays StateGate decision/proof from archived exact inputs.",
@@ -709,7 +748,7 @@
         "B",
         "C"
       ],
-      "setup_procedure": "Same setup as C1; freeze bytes, hash/index and normalized decision inputs before clean replay.",
+      "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json as in C1; freeze the CONSISTENT common packet and exact replay input before two clean offline replays.",
       "event_mutation_sequence": "OPEN \u2192 current approval \u2192 checks pass \u2192 capture common + arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
       "evidence_requirements": "Full common evidence packet, collector/snapshot/proof bytes, replay command/runtime identity and output hashes.",
       "expected_observations": "Eligible PR state; each arm replays its retained evidence using frozen common reference procedure; C additionally replays StateGate decision/proof from archived exact inputs.",

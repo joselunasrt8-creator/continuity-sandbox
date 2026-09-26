@@ -1,0 +1,33 @@
+{
+  "manifest_version": "1.0.0",
+  "file_mode": "100644",
+  "no_unlisted_files": true,
+  "common_files": {
+    ".github/workflows/common-collector.yml": "common-collector.yml",
+    ".github/workflows/fixture-ci.yml": "fixture-ci.yml",
+    "benchmark/benchmark-fixture.txt": "fixtures/base/benchmark-fixture.txt",
+    "experiments/stategate-mechanism-outcome-v1/common-collector.mjs": "common-collector.mjs"
+  },
+  "arms": {
+    "A": {
+      "additional_files": {},
+      "root_git_tree_sha1": "c345782f3bf5354ed94bda5403362e11f96d52fb"
+    },
+    "B": {
+      "additional_files": {
+        ".github/workflows/snapshot-collector.yml": "snapshot-collector.yml",
+        "experiments/stategate-mechanism-outcome-v1/snapshot-collector.mjs": "snapshot-collector.mjs"
+      },
+      "root_git_tree_sha1": "d272716648deef7f157d76281431bb2a5171e964"
+    },
+    "C": {
+      "additional_files": {
+        ".github/workflows/stategate-required-check.yml": "stategate-required-check.yml"
+      },
+      "root_git_tree_sha1": "d3808c0f4bdb64eed174913051ff4233a0948243"
+    }
+  },
+  "construction": "Create a new empty repository tree using common_files plus only the assigned arm additional_files. Copy exact source bytes from this frozen package at the exact destination path and mode; add no README, license, generated file, or other workflow. git write-tree must equal the assigned root_git_tree_sha1 before the base commit is created.",
+  "base_commit_rule": "Create one base commit per arm from the assigned root tree. Commit message is exactly 'benchmark: frozen base v1'. Use the same recorded author/committer identity and timestamp across all arms. Parentless root commits are required. Record the three resulting commit SHAs before any episode; tree equality, not commit-SHA equality, is the frozen base identity because assigned arm workflows intentionally differ.",
+  "episode_reset_rule": "Every episode branch starts from its arm's recorded base commit. No prior episode commit, artifact, or generated file may remain in the repository tree. Repository rules and variables are external GitHub configuration and are captured separately."
+}
