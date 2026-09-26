@@ -1,0 +1,31 @@
+name: Evidence snapshot (Arm B)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: write
+
+jobs:
+  snapshot:
+    name: evidence-snapshot
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Capture current PR snapshot (non-required)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: node experiments/stategate-mechanism-outcome-v1/snapshot-collector.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: pr-state-snapshot
+          path: pr-state-snapshot.json
+          if-no-files-found: ignore
+          retention-days: 90

@@ -1,0 +1,725 @@
+{
+  "manifest_version": "1.0.0",
+  "design": {
+    "scenario_classes": 6,
+    "repetitions_per_class": 4,
+    "matched_sets": 24,
+    "arms": [
+      "A",
+      "B",
+      "C"
+    ],
+    "maximum_pr_episodes": 72,
+    "execution_authorized": false,
+    "randomization_seed": "sha256:stategate-mechanism-outcome-v1-pre-outcome-seed-20260926",
+    "scenario_execution_order": [
+      "SG-MO1-C2-R01",
+      "SG-MO1-C3-R01",
+      "SG-MO1-C2-R03",
+      "SG-MO1-C5-R02",
+      "SG-MO1-C1-R01",
+      "SG-MO1-C1-R04",
+      "SG-MO1-C1-R02",
+      "SG-MO1-C5-R01",
+      "SG-MO1-C2-R04",
+      "SG-MO1-C6-R03",
+      "SG-MO1-C5-R04",
+      "SG-MO1-C4-R04",
+      "SG-MO1-C6-R02",
+      "SG-MO1-C3-R04",
+      "SG-MO1-C4-R02",
+      "SG-MO1-C5-R03",
+      "SG-MO1-C4-R01",
+      "SG-MO1-C1-R03",
+      "SG-MO1-C2-R02",
+      "SG-MO1-C4-R03",
+      "SG-MO1-C6-R01",
+      "SG-MO1-C6-R04",
+      "SG-MO1-C3-R03",
+      "SG-MO1-C3-R02"
+    ],
+    "randomization_algorithm": "Precomputed permutations below are normative; generated with CPython 3.12.14 random.Random (MT19937), scenario order shuffled from design seed and arm order shuffled from seed concatenated with scenario ID."
+  },
+  "scenario_classes": [
+    {
+      "scenario_class_id": "C1",
+      "semantic_class": "clean-valid-current-change",
+      "planned_eligible": true
+    },
+    {
+      "scenario_class_id": "C2",
+      "semantic_class": "post-approval-head-diff-change",
+      "planned_eligible": false
+    },
+    {
+      "scenario_class_id": "C3",
+      "semantic_class": "current-head-reapproval",
+      "planned_eligible": true
+    },
+    {
+      "scenario_class_id": "C4",
+      "semantic_class": "altered-object-exact-mismatch",
+      "planned_eligible": false
+    },
+    {
+      "scenario_class_id": "C5",
+      "semantic_class": "missing-invalid-required-evidence",
+      "planned_eligible": false
+    },
+    {
+      "scenario_class_id": "C6",
+      "semantic_class": "deterministic-replay-archived-evidence",
+      "planned_eligible": true
+    }
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "SG-MO1-C1-R01",
+      "scenario_class_id": "C1",
+      "semantic_class": "clean-valid-current-change",
+      "repetition": 1,
+      "ground_truth": {
+        "eligible": true,
+        "definition": "Clean fixture PR; current event/head/base, complete evidence and one current approval.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Use identical inert README-only patch and current approval.",
+      "event_mutation_sequence": "OPEN \u2192 synchronize \u2192 ready_for_review \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on eligible fixture.",
+      "evidence_requirements": "Repository/PR/event/head/base/diff, approval bound to current head, CI and required checks.",
+      "expected_observations": "All arms disposition eligible; StateGate VALID and proof binds current object.",
+      "stopping_behavior": "No unexpected mutation; no merge before evidence capture.",
+      "permitted_deviations": "Recreate only before scenario mutation.",
+      "arm_order": [
+        "B",
+        "A",
+        "C"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C1-R02",
+      "scenario_class_id": "C1",
+      "semantic_class": "clean-valid-current-change",
+      "repetition": 2,
+      "ground_truth": {
+        "eligible": true,
+        "definition": "Clean fixture PR; current event/head/base, complete evidence and one current approval.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Use identical inert README-only patch and current approval.",
+      "event_mutation_sequence": "OPEN \u2192 synchronize \u2192 ready_for_review \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on eligible fixture.",
+      "evidence_requirements": "Repository/PR/event/head/base/diff, approval bound to current head, CI and required checks.",
+      "expected_observations": "All arms disposition eligible; StateGate VALID and proof binds current object.",
+      "stopping_behavior": "No unexpected mutation; no merge before evidence capture.",
+      "permitted_deviations": "Recreate only before scenario mutation.",
+      "arm_order": [
+        "C",
+        "A",
+        "B"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C1-R03",
+      "scenario_class_id": "C1",
+      "semantic_class": "clean-valid-current-change",
+      "repetition": 3,
+      "ground_truth": {
+        "eligible": true,
+        "definition": "Clean fixture PR; current event/head/base, complete evidence and one current approval.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Use identical inert README-only patch and current approval.",
+      "event_mutation_sequence": "OPEN \u2192 synchronize \u2192 ready_for_review \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on eligible fixture.",
+      "evidence_requirements": "Repository/PR/event/head/base/diff, approval bound to current head, CI and required checks.",
+      "expected_observations": "All arms disposition eligible; StateGate VALID and proof binds current object.",
+      "stopping_behavior": "No unexpected mutation; no merge before evidence capture.",
+      "permitted_deviations": "Recreate only before scenario mutation.",
+      "arm_order": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C1-R04",
+      "scenario_class_id": "C1",
+      "semantic_class": "clean-valid-current-change",
+      "repetition": 4,
+      "ground_truth": {
+        "eligible": true,
+        "definition": "Clean fixture PR; current event/head/base, complete evidence and one current approval.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Use identical inert README-only patch and current approval.",
+      "event_mutation_sequence": "OPEN \u2192 synchronize \u2192 ready_for_review \u2192 submit APPROVED for current head \u2192 all native CI passes \u2192 capture \u2192 authorized merge on eligible fixture.",
+      "evidence_requirements": "Repository/PR/event/head/base/diff, approval bound to current head, CI and required checks.",
+      "expected_observations": "All arms disposition eligible; StateGate VALID and proof binds current object.",
+      "stopping_behavior": "No unexpected mutation; no merge before evidence capture.",
+      "permitted_deviations": "Recreate only before scenario mutation.",
+      "arm_order": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C2-R01",
+      "scenario_class_id": "C2",
+      "semantic_class": "post-approval-head-diff-change",
+      "repetition": 1,
+      "ground_truth": {
+        "eligible": false,
+        "definition": "Approve fixture head H1, then push H2 changing the diff after approval.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Submit approval for H1; push an inert second commit H2; allow synchronize event/checks.",
+      "event_mutation_sequence": "OPEN(H1) \u2192 approve(H1) \u2192 push(H2) \u2192 synchronize \u2192 inspect before reapproval.",
+      "evidence_requirements": "Both head SHAs, diff hashes, review commit_id/state/timestamp, dismissal and check history.",
+      "expected_observations": "Ineligible at H2 until current-head approval; A rules dismiss stale, B snapshot shows stale review, C must not validate stale approval.",
+      "stopping_behavior": "Do not merge; stop before any approval of H2.",
+      "permitted_deviations": "GitHub must report stale review/current push state; otherwise block set.",
+      "arm_order": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C2-R02",
+      "scenario_class_id": "C2",
+      "semantic_class": "post-approval-head-diff-change",
+      "repetition": 2,
+      "ground_truth": {
+        "eligible": false,
+        "definition": "Approve fixture head H1, then push H2 changing the diff after approval.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Submit approval for H1; push an inert second commit H2; allow synchronize event/checks.",
+      "event_mutation_sequence": "OPEN(H1) \u2192 approve(H1) \u2192 push(H2) \u2192 synchronize \u2192 inspect before reapproval.",
+      "evidence_requirements": "Both head SHAs, diff hashes, review commit_id/state/timestamp, dismissal and check history.",
+      "expected_observations": "Ineligible at H2 until current-head approval; A rules dismiss stale, B snapshot shows stale review, C must not validate stale approval.",
+      "stopping_behavior": "Do not merge; stop before any approval of H2.",
+      "permitted_deviations": "GitHub must report stale review/current push state; otherwise block set.",
+      "arm_order": [
+        "C",
+        "A",
+        "B"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C2-R03",
+      "scenario_class_id": "C2",
+      "semantic_class": "post-approval-head-diff-change",
+      "repetition": 3,
+      "ground_truth": {
+        "eligible": false,
+        "definition": "Approve fixture head H1, then push H2 changing the diff after approval.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Submit approval for H1; push an inert second commit H2; allow synchronize event/checks.",
+      "event_mutation_sequence": "OPEN(H1) \u2192 approve(H1) \u2192 push(H2) \u2192 synchronize \u2192 inspect before reapproval.",
+      "evidence_requirements": "Both head SHAs, diff hashes, review commit_id/state/timestamp, dismissal and check history.",
+      "expected_observations": "Ineligible at H2 until current-head approval; A rules dismiss stale, B snapshot shows stale review, C must not validate stale approval.",
+      "stopping_behavior": "Do not merge; stop before any approval of H2.",
+      "permitted_deviations": "GitHub must report stale review/current push state; otherwise block set.",
+      "arm_order": [
+        "A",
+        "C",
+        "B"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C2-R04",
+      "scenario_class_id": "C2",
+      "semantic_class": "post-approval-head-diff-change",
+      "repetition": 4,
+      "ground_truth": {
+        "eligible": false,
+        "definition": "Approve fixture head H1, then push H2 changing the diff after approval.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Submit approval for H1; push an inert second commit H2; allow synchronize event/checks.",
+      "event_mutation_sequence": "OPEN(H1) \u2192 approve(H1) \u2192 push(H2) \u2192 synchronize \u2192 inspect before reapproval.",
+      "evidence_requirements": "Both head SHAs, diff hashes, review commit_id/state/timestamp, dismissal and check history.",
+      "expected_observations": "Ineligible at H2 until current-head approval; A rules dismiss stale, B snapshot shows stale review, C must not validate stale approval.",
+      "stopping_behavior": "Do not merge; stop before any approval of H2.",
+      "permitted_deviations": "GitHub must report stale review/current push state; otherwise block set.",
+      "arm_order": [
+        "B",
+        "C",
+        "A"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C3-R01",
+      "scenario_class_id": "C3",
+      "semantic_class": "current-head-reapproval",
+      "repetition": 1,
+      "ground_truth": {
+        "eligible": true,
+        "definition": "Push H2 then obtain a new approval explicitly bound to current H2.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Use same two-commit fixture; review H2 after synchronize.",
+      "event_mutation_sequence": "OPEN(H1) \u2192 push(H2) \u2192 approve(H2) \u2192 all native CI passes \u2192 capture \u2192 authorized merge.",
+      "evidence_requirements": "Current head/diff, full review history, approval commit binding, required checks.",
+      "expected_observations": "All arms eligible after reapproval; C VALID only on H2.",
+      "stopping_behavior": "No merge until evidence capture and current-head identity verified.",
+      "permitted_deviations": "Only one explicit reapproval; no further push.",
+      "arm_order": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C3-R02",
+      "scenario_class_id": "C3",
+      "semantic_class": "current-head-reapproval",
+      "repetition": 2,
+      "ground_truth": {
+        "eligible": true,
+        "definition": "Push H2 then obtain a new approval explicitly bound to current H2.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Use same two-commit fixture; review H2 after synchronize.",
+      "event_mutation_sequence": "OPEN(H1) \u2192 push(H2) \u2192 approve(H2) \u2192 all native CI passes \u2192 capture \u2192 authorized merge.",
+      "evidence_requirements": "Current head/diff, full review history, approval commit binding, required checks.",
+      "expected_observations": "All arms eligible after reapproval; C VALID only on H2.",
+      "stopping_behavior": "No merge until evidence capture and current-head identity verified.",
+      "permitted_deviations": "Only one explicit reapproval; no further push.",
+      "arm_order": [
+        "B",
+        "A",
+        "C"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C3-R03",
+      "scenario_class_id": "C3",
+      "semantic_class": "current-head-reapproval",
+      "repetition": 3,
+      "ground_truth": {
+        "eligible": true,
+        "definition": "Push H2 then obtain a new approval explicitly bound to current H2.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Use same two-commit fixture; review H2 after synchronize.",
+      "event_mutation_sequence": "OPEN(H1) \u2192 push(H2) \u2192 approve(H2) \u2192 all native CI passes \u2192 capture \u2192 authorized merge.",
+      "evidence_requirements": "Current head/diff, full review history, approval commit binding, required checks.",
+      "expected_observations": "All arms eligible after reapproval; C VALID only on H2.",
+      "stopping_behavior": "No merge until evidence capture and current-head identity verified.",
+      "permitted_deviations": "Only one explicit reapproval; no further push.",
+      "arm_order": [
+        "B",
+        "C",
+        "A"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C3-R04",
+      "scenario_class_id": "C3",
+      "semantic_class": "current-head-reapproval",
+      "repetition": 4,
+      "ground_truth": {
+        "eligible": true,
+        "definition": "Push H2 then obtain a new approval explicitly bound to current H2.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Use same two-commit fixture; review H2 after synchronize.",
+      "event_mutation_sequence": "OPEN(H1) \u2192 push(H2) \u2192 approve(H2) \u2192 all native CI passes \u2192 capture \u2192 authorized merge.",
+      "evidence_requirements": "Current head/diff, full review history, approval commit binding, required checks.",
+      "expected_observations": "All arms eligible after reapproval; C VALID only on H2.",
+      "stopping_behavior": "No merge until evidence capture and current-head identity verified.",
+      "permitted_deviations": "Only one explicit reapproval; no further push.",
+      "arm_order": [
+        "B",
+        "A",
+        "C"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C4-R01",
+      "scenario_class_id": "C4",
+      "semantic_class": "altered-object-exact-mismatch",
+      "repetition": 1,
+      "ground_truth": {
+        "eligible": false,
+        "definition": "The frozen proposed object is O1; current PR is O2. Despite current-head approval, transition of O1 is ineligible because exact intended diff identity does not match. GitHub may report current O2 as mergeable; record that native state separately.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Capture intended O1 head/base/diff snapshot; push changed O2; obtain current-head approval for O2 so native controls are otherwise satisfied. Arm C supplies the recorded O1 diff hash as EXPECTED_DIFF_HASH while the pinned action fetches current O2. Arm B retains O1 and O2 snapshots for comparison.",
+      "event_mutation_sequence": "OPEN(H1/O1) \u2192 common snapshot O1 \u2192 push(H2/O2) \u2192 approve(H2) \u2192 CI passes \u2192 StateGate evaluates event H2/current diff against expected O1 hash \u2192 capture; do not merge because intended O1 != current O2.",
+      "evidence_requirements": "Frozen O1 and current O2 snapshots/diff hashes, expected-diff-hash repository variable evidence, current review binding, event payload, check and proof.",
+      "expected_observations": "A native controls may report current O2 eligible. B snapshots make O1/O2 difference auditable but do not gate it. C should fail closed on expected diff mismatch; any C eligibility is a false allow.",
+      "stopping_behavior": "No merge; stop if StateGate uses current O2 hash as expected identity or workflow does not expose exact mismatch.",
+      "permitted_deviations": "If repository variables cannot freeze EXPECTED_DIFF_HASH before trial, or Action check cannot run for the current PR head, mark prerequisite BLOCKED; do not substitute workflow_dispatch or inject evidence.",
+      "arm_order": [
+        "B",
+        "C",
+        "A"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C4-R02",
+      "scenario_class_id": "C4",
+      "semantic_class": "altered-object-exact-mismatch",
+      "repetition": 2,
+      "ground_truth": {
+        "eligible": false,
+        "definition": "The frozen proposed object is O1; current PR is O2. Despite current-head approval, transition of O1 is ineligible because exact intended diff identity does not match. GitHub may report current O2 as mergeable; record that native state separately.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Capture intended O1 head/base/diff snapshot; push changed O2; obtain current-head approval for O2 so native controls are otherwise satisfied. Arm C supplies the recorded O1 diff hash as EXPECTED_DIFF_HASH while the pinned action fetches current O2. Arm B retains O1 and O2 snapshots for comparison.",
+      "event_mutation_sequence": "OPEN(H1/O1) \u2192 common snapshot O1 \u2192 push(H2/O2) \u2192 approve(H2) \u2192 CI passes \u2192 StateGate evaluates event H2/current diff against expected O1 hash \u2192 capture; do not merge because intended O1 != current O2.",
+      "evidence_requirements": "Frozen O1 and current O2 snapshots/diff hashes, expected-diff-hash repository variable evidence, current review binding, event payload, check and proof.",
+      "expected_observations": "A native controls may report current O2 eligible. B snapshots make O1/O2 difference auditable but do not gate it. C should fail closed on expected diff mismatch; any C eligibility is a false allow.",
+      "stopping_behavior": "No merge; stop if StateGate uses current O2 hash as expected identity or workflow does not expose exact mismatch.",
+      "permitted_deviations": "If repository variables cannot freeze EXPECTED_DIFF_HASH before trial, or Action check cannot run for the current PR head, mark prerequisite BLOCKED; do not substitute workflow_dispatch or inject evidence.",
+      "arm_order": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C4-R03",
+      "scenario_class_id": "C4",
+      "semantic_class": "altered-object-exact-mismatch",
+      "repetition": 3,
+      "ground_truth": {
+        "eligible": false,
+        "definition": "The frozen proposed object is O1; current PR is O2. Despite current-head approval, transition of O1 is ineligible because exact intended diff identity does not match. GitHub may report current O2 as mergeable; record that native state separately.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Capture intended O1 head/base/diff snapshot; push changed O2; obtain current-head approval for O2 so native controls are otherwise satisfied. Arm C supplies the recorded O1 diff hash as EXPECTED_DIFF_HASH while the pinned action fetches current O2. Arm B retains O1 and O2 snapshots for comparison.",
+      "event_mutation_sequence": "OPEN(H1/O1) \u2192 common snapshot O1 \u2192 push(H2/O2) \u2192 approve(H2) \u2192 CI passes \u2192 StateGate evaluates event H2/current diff against expected O1 hash \u2192 capture; do not merge because intended O1 != current O2.",
+      "evidence_requirements": "Frozen O1 and current O2 snapshots/diff hashes, expected-diff-hash repository variable evidence, current review binding, event payload, check and proof.",
+      "expected_observations": "A native controls may report current O2 eligible. B snapshots make O1/O2 difference auditable but do not gate it. C should fail closed on expected diff mismatch; any C eligibility is a false allow.",
+      "stopping_behavior": "No merge; stop if StateGate uses current O2 hash as expected identity or workflow does not expose exact mismatch.",
+      "permitted_deviations": "If repository variables cannot freeze EXPECTED_DIFF_HASH before trial, or Action check cannot run for the current PR head, mark prerequisite BLOCKED; do not substitute workflow_dispatch or inject evidence.",
+      "arm_order": [
+        "B",
+        "A",
+        "C"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C4-R04",
+      "scenario_class_id": "C4",
+      "semantic_class": "altered-object-exact-mismatch",
+      "repetition": 4,
+      "ground_truth": {
+        "eligible": false,
+        "definition": "The frozen proposed object is O1; current PR is O2. Despite current-head approval, transition of O1 is ineligible because exact intended diff identity does not match. GitHub may report current O2 as mergeable; record that native state separately.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Capture intended O1 head/base/diff snapshot; push changed O2; obtain current-head approval for O2 so native controls are otherwise satisfied. Arm C supplies the recorded O1 diff hash as EXPECTED_DIFF_HASH while the pinned action fetches current O2. Arm B retains O1 and O2 snapshots for comparison.",
+      "event_mutation_sequence": "OPEN(H1/O1) \u2192 common snapshot O1 \u2192 push(H2/O2) \u2192 approve(H2) \u2192 CI passes \u2192 StateGate evaluates event H2/current diff against expected O1 hash \u2192 capture; do not merge because intended O1 != current O2.",
+      "evidence_requirements": "Frozen O1 and current O2 snapshots/diff hashes, expected-diff-hash repository variable evidence, current review binding, event payload, check and proof.",
+      "expected_observations": "A native controls may report current O2 eligible. B snapshots make O1/O2 difference auditable but do not gate it. C should fail closed on expected diff mismatch; any C eligibility is a false allow.",
+      "stopping_behavior": "No merge; stop if StateGate uses current O2 hash as expected identity or workflow does not expose exact mismatch.",
+      "permitted_deviations": "If repository variables cannot freeze EXPECTED_DIFF_HASH before trial, or Action check cannot run for the current PR head, mark prerequisite BLOCKED; do not substitute workflow_dispatch or inject evidence.",
+      "arm_order": [
+        "B",
+        "C",
+        "A"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C5-R01",
+      "scenario_class_id": "C5",
+      "semantic_class": "missing-invalid-required-evidence",
+      "repetition": 1,
+      "ground_truth": {
+        "eligible": false,
+        "definition": "Do not provide an approved current-head review; separately record API/review evidence as absent.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Open ready PR with valid inert patch but no approval; allow required checks to finish.",
+      "event_mutation_sequence": "OPEN \u2192 ready_for_review \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
+      "evidence_requirements": "Review API response/pagination, native rules, status checks, StateGate result/null reason, missingness source.",
+      "expected_observations": "Ineligible in all arms because required approval/evidence absent; missing evidence is not imputed.",
+      "stopping_behavior": "No merge; do not create malformed synthetic proof or alter permissions mid-trial.",
+      "permitted_deviations": "If GitHub automatically supplies an approval, cancel before scoring; retain deviation.",
+      "arm_order": [
+        "C",
+        "B",
+        "A"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C5-R02",
+      "scenario_class_id": "C5",
+      "semantic_class": "missing-invalid-required-evidence",
+      "repetition": 2,
+      "ground_truth": {
+        "eligible": false,
+        "definition": "Do not provide an approved current-head review; separately record API/review evidence as absent.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Open ready PR with valid inert patch but no approval; allow required checks to finish.",
+      "event_mutation_sequence": "OPEN \u2192 ready_for_review \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
+      "evidence_requirements": "Review API response/pagination, native rules, status checks, StateGate result/null reason, missingness source.",
+      "expected_observations": "Ineligible in all arms because required approval/evidence absent; missing evidence is not imputed.",
+      "stopping_behavior": "No merge; do not create malformed synthetic proof or alter permissions mid-trial.",
+      "permitted_deviations": "If GitHub automatically supplies an approval, cancel before scoring; retain deviation.",
+      "arm_order": [
+        "B",
+        "C",
+        "A"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C5-R03",
+      "scenario_class_id": "C5",
+      "semantic_class": "missing-invalid-required-evidence",
+      "repetition": 3,
+      "ground_truth": {
+        "eligible": false,
+        "definition": "Do not provide an approved current-head review; separately record API/review evidence as absent.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Open ready PR with valid inert patch but no approval; allow required checks to finish.",
+      "event_mutation_sequence": "OPEN \u2192 ready_for_review \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
+      "evidence_requirements": "Review API response/pagination, native rules, status checks, StateGate result/null reason, missingness source.",
+      "expected_observations": "Ineligible in all arms because required approval/evidence absent; missing evidence is not imputed.",
+      "stopping_behavior": "No merge; do not create malformed synthetic proof or alter permissions mid-trial.",
+      "permitted_deviations": "If GitHub automatically supplies an approval, cancel before scoring; retain deviation.",
+      "arm_order": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C5-R04",
+      "scenario_class_id": "C5",
+      "semantic_class": "missing-invalid-required-evidence",
+      "repetition": 4,
+      "ground_truth": {
+        "eligible": false,
+        "definition": "Do not provide an approved current-head review; separately record API/review evidence as absent.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Open ready PR with valid inert patch but no approval; allow required checks to finish.",
+      "event_mutation_sequence": "OPEN \u2192 ready_for_review \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
+      "evidence_requirements": "Review API response/pagination, native rules, status checks, StateGate result/null reason, missingness source.",
+      "expected_observations": "Ineligible in all arms because required approval/evidence absent; missing evidence is not imputed.",
+      "stopping_behavior": "No merge; do not create malformed synthetic proof or alter permissions mid-trial.",
+      "permitted_deviations": "If GitHub automatically supplies an approval, cancel before scoring; retain deviation.",
+      "arm_order": [
+        "C",
+        "A",
+        "B"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C6-R01",
+      "scenario_class_id": "C6",
+      "semantic_class": "deterministic-replay-archived-evidence",
+      "repetition": 1,
+      "ground_truth": {
+        "eligible": true,
+        "definition": "Create clean eligible fixture PR, capture complete packet, then replay archived evidence twice without live network acquisition.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Same setup as C1; freeze bytes, hash/index and normalized decision inputs before clean replay.",
+      "event_mutation_sequence": "OPEN \u2192 current approval \u2192 checks pass \u2192 capture common + arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
+      "evidence_requirements": "Full common evidence packet, collector/snapshot/proof bytes, replay command/runtime identity and output hashes.",
+      "expected_observations": "Eligible PR state; each arm replays its retained evidence using frozen common reference procedure; C additionally replays StateGate decision/proof from archived exact inputs.",
+      "stopping_behavior": "No input changes/network fetch during replay; stop if archived evidence incomplete.",
+      "permitted_deviations": "One retry only for environment failure before replay input is opened; preserve both attempts.",
+      "arm_order": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C6-R02",
+      "scenario_class_id": "C6",
+      "semantic_class": "deterministic-replay-archived-evidence",
+      "repetition": 2,
+      "ground_truth": {
+        "eligible": true,
+        "definition": "Create clean eligible fixture PR, capture complete packet, then replay archived evidence twice without live network acquisition.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Same setup as C1; freeze bytes, hash/index and normalized decision inputs before clean replay.",
+      "event_mutation_sequence": "OPEN \u2192 current approval \u2192 checks pass \u2192 capture common + arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
+      "evidence_requirements": "Full common evidence packet, collector/snapshot/proof bytes, replay command/runtime identity and output hashes.",
+      "expected_observations": "Eligible PR state; each arm replays its retained evidence using frozen common reference procedure; C additionally replays StateGate decision/proof from archived exact inputs.",
+      "stopping_behavior": "No input changes/network fetch during replay; stop if archived evidence incomplete.",
+      "permitted_deviations": "One retry only for environment failure before replay input is opened; preserve both attempts.",
+      "arm_order": [
+        "B",
+        "A",
+        "C"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C6-R03",
+      "scenario_class_id": "C6",
+      "semantic_class": "deterministic-replay-archived-evidence",
+      "repetition": 3,
+      "ground_truth": {
+        "eligible": true,
+        "definition": "Create clean eligible fixture PR, capture complete packet, then replay archived evidence twice without live network acquisition.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Same setup as C1; freeze bytes, hash/index and normalized decision inputs before clean replay.",
+      "event_mutation_sequence": "OPEN \u2192 current approval \u2192 checks pass \u2192 capture common + arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
+      "evidence_requirements": "Full common evidence packet, collector/snapshot/proof bytes, replay command/runtime identity and output hashes.",
+      "expected_observations": "Eligible PR state; each arm replays its retained evidence using frozen common reference procedure; C additionally replays StateGate decision/proof from archived exact inputs.",
+      "stopping_behavior": "No input changes/network fetch during replay; stop if archived evidence incomplete.",
+      "permitted_deviations": "One retry only for environment failure before replay input is opened; preserve both attempts.",
+      "arm_order": [
+        "A",
+        "C",
+        "B"
+      ]
+    },
+    {
+      "scenario_id": "SG-MO1-C6-R04",
+      "scenario_class_id": "C6",
+      "semantic_class": "deterministic-replay-archived-evidence",
+      "repetition": 4,
+      "ground_truth": {
+        "eligible": true,
+        "definition": "Create clean eligible fixture PR, capture complete packet, then replay archived evidence twice without live network acquisition.",
+        "source": "scenario definition plus common GitHub observations; arm output is excluded"
+      },
+      "matched_arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "setup_procedure": "Same setup as C1; freeze bytes, hash/index and normalized decision inputs before clean replay.",
+      "event_mutation_sequence": "OPEN \u2192 current approval \u2192 checks pass \u2192 capture common + arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
+      "evidence_requirements": "Full common evidence packet, collector/snapshot/proof bytes, replay command/runtime identity and output hashes.",
+      "expected_observations": "Eligible PR state; each arm replays its retained evidence using frozen common reference procedure; C additionally replays StateGate decision/proof from archived exact inputs.",
+      "stopping_behavior": "No input changes/network fetch during replay; stop if archived evidence incomplete.",
+      "permitted_deviations": "One retry only for environment failure before replay input is opened; preserve both attempts.",
+      "arm_order": [
+        "C",
+        "B",
+        "A"
+      ]
+    }
+  ]
+}

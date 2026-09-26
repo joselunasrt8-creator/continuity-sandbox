@@ -1,0 +1,69 @@
+{
+  "classifier_version": "1.0.0",
+  "terminal_values": [
+    "MEASURABLE_IMPROVEMENT",
+    "NO_MATERIAL_DIFFERENCE",
+    "MEASURABLE_HARM",
+    "TOO_COSTLY",
+    "BLOCKED",
+    "INDETERMINATE"
+  ],
+  "comparison": "Arm C must be compared separately with both Arm A and Arm B using the paired matched sets.",
+  "improvement_gate": {
+    "all_required": [
+      "C false allows = 0 across complete ineligible episodes.",
+      "C false-block rate is no more than 5 percentage points above A and no more than 5 percentage points above B.",
+      "C meets at least one qualifying-outcome threshold against BOTH A and B: mean common evidence completeness improves by at least 20 percentage points; OR median blinded reconstruction time is reduced by at least 30 percent with reconstruction accuracy no lower than either comparator; OR C blocks at least one independently GT-ineligible matched transition for which both A and B report eligible/mergeable, while C reports ineligible.",
+      "Median C added gating delay is at most 45 seconds, measured from the last common native check/evidence availability to C disposition.",
+      "Median operator overhead for C is at most 120 seconds per PR."
+    ],
+    "qualifying_outcomes": {
+      "evidence_completeness": "Mean per-episode percentage using identical common-field denominator; C minus comparator >= 20 percentage points.",
+      "audit_reconstruction": "Median of complete blinded reconstructions; if comparator median is zero, this criterion cannot qualify; otherwise (comparator median - C median) / comparator median >= 0.30; accuracy proportion for C must be >= each comparator.",
+      "prevented_transition": "Same matched scenario has GT ineligible; A and B both show GitHub mergeability/eligibility; C is ineligible and no transition is executed. This is a control-state prevention claim, not a claim that StateGate executed or authorized anything."
+    }
+  },
+  "technical_review_of_proposed_thresholds": {
+    "decision": "Retain all proposed numeric thresholds unchanged.",
+    "false_block_5pp": "Twelve planned GT-eligible episodes per arm make the smallest nonzero arm rate 8.33 percentage points. Therefore <=5pp permits zero additional false blocks at this sample size. This is conservative and technically implementable; interpret it as zero observed excess, not as a finely resolved 5pp estimate.",
+    "false_allow_zero": "Finite-scenario safety gate; it does not imply zero population risk beyond these scenarios.",
+    "evidence_20pp": "Use mean per-episode completion over the frozen common applicable-field denominator; this makes the difference computable and keeps arm-only proof fields from inflating the score.",
+    "audit_30pct": "Require accuracy no worse than either comparator so faster incorrect reconstruction cannot count as improvement.",
+    "delay_45s_and_overhead_120s": "Report medians and full distributions; missing measurements are not imputed. The thresholds are applied to the measured median, not estimated future volume."
+  },
+  "precedence": [
+    {
+      "if": "A confirmed, source-verifiable StateGate false allow occurs, regardless of sample completion; OR a complete primary denominator demonstrates C false-block rate >5 percentage points above either comparator; OR C mean common evidence completeness is >=20 points below either comparator; OR C blinded reconstruction is >=30% slower with no accuracy advantage or accuracy is >=20 points below either comparator. A confirmed false allow stops the affected set/benchmark.",
+      "then": "MEASURABLE_HARM"
+    },
+    {
+      "if": "Frozen native rules, a distinct already-authorized reviewer, immutable pin, common collector, ground truth, or protocol integrity cannot support a valid comparison; or a protocol blocker halts the design before a valid dataset exists, and no independently confirmed harm trigger above exists.",
+      "then": "BLOCKED"
+    },
+    {
+      "if": "A primary comparison cannot be evaluated, a planned ineligible denominator is incomplete for zero-false-allow interpretation, or fewer than all 24 matched sets have complete primary outcome data.",
+      "then": "INDETERMINATE"
+    },
+    {
+      "if": "Median C added gating delay exceeds 45 seconds or median C operator overhead exceeds 120 seconds per PR, and no higher-precedence harm or blocker applies.",
+      "then": "TOO_COSTLY"
+    },
+    {
+      "if": "Every safety, quality, meaningful-outcome, and cost condition in the improvement gate is met against both controls.",
+      "then": "MEASURABLE_IMPROVEMENT"
+    },
+    {
+      "if": "All 24 matched sets have complete primary outcomes, no harm or cost precedence applies, and the improvement gate is not met.",
+      "then": "NO_MATERIAL_DIFFERENCE"
+    }
+  ],
+  "missingness": "Never replace missing values with zero. Missing/incomplete primary denominators force INDETERMINATE unless an independently confirmed false allow qualifies as MEASURABLE_HARM or a precomparison prerequisite makes the study BLOCKED.",
+  "execution_status": "NOT_RUN_PROTOCOL_ONLY",
+  "harm_rules": {
+    "false_allow": "One independently confirmed StateGate false allow is sufficient for MEASURABLE_HARM and stops that matched set; no minimum sample count.",
+    "false_block": "Once all 12 planned eligible episodes are complete, C false-block rate more than 5 percentage points above either A or B is MEASURABLE_HARM.",
+    "evidence_completeness": "C mean common evidence completeness at least 20 percentage points lower than either A or B is MEASURABLE_HARM.",
+    "audit_reconstruction": "C median correct reconstruction time at least 30 percent slower than either comparator with no accuracy advantage, or C reconstruction accuracy at least 20 percentage points below either comparator, is MEASURABLE_HARM.",
+    "rationale": "These are symmetric adverse counterparts to the preregistered meaningful evidence/time outcomes. Original Issue #43 improvement thresholds are unchanged."
+  }
+}

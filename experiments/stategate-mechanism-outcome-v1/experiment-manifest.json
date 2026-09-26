@@ -1,0 +1,67 @@
+{
+  "manifest_version": "1.0.0",
+  "experiment_id": "stategate-mechanism-outcome-v1",
+  "protocol_status": "PROTOCOL_FROZEN",
+  "owner_repository": "joselunasrt8-creator/continuity-sandbox",
+  "primary_issue": 43,
+  "parent_issue": 40,
+  "upstream_issue": "joselunasrt8-creator/Continufy-#19",
+  "research_question": "Does StateGate's exact-object validation/proof loop produce measurable mechanism-to-outcome value relative to competent GitHub-native controls and those controls plus a minimal snapshot?",
+  "arms": [
+    "A_NATIVE",
+    "B_NATIVE_PLUS_SNAPSHOT",
+    "C_NATIVE_PLUS_STATEGATE"
+  ],
+  "scenario_classes": 6,
+  "repetitions_per_class": 4,
+  "matched_sets": 24,
+  "maximum_pr_episodes": 72,
+  "stategate": {
+    "repository": "joselunasrt8-creator/stategate",
+    "release": "v1.1.1",
+    "tag_object_sha": "f1717c67ce8cef1f69a3c5af1081cd493f7eb724",
+    "immutable_commit_sha": "dd6a607533b0c5c31eb99840e39d0a443998541a",
+    "release_manifest_sha256": "sha256:e5faa5c90dfb275a9c7628a13c801a62f5fb6ea60cb098dc11d4ab016cf0ce50",
+    "uses": "joselunasrt8-creator/stategate@dd6a607533b0c5c31eb99840e39d0a443998541a",
+    "proof_schema_version": "1.1.0",
+    "review_binding": "require_review_approval=true; minimum_approvals=1; reviewed_head_sha must equal validated head"
+  },
+  "authority_boundary": "GitHub rules/operator only; StateGate emits a required check and proof, never merge authority or merge execution.",
+  "scenario_execution_authorized": false,
+  "outcomes_collected": false,
+  "protocol_artifacts": [
+    "PROTOCOL.md",
+    "SCENARIOS.json",
+    "OUTCOME_OBJECT.schema.json",
+    "TERMINAL_CLASSIFIER.json",
+    "experiment-manifest.json",
+    "evidence-requirements.md",
+    "analysis-plan.md",
+    "snapshot-collector.mjs",
+    "snapshot-collector.yml",
+    "fixture-ci.yml",
+    "stategate-required-check.yml",
+    "validate-protocol.mjs",
+    "freeze-manifest.json"
+  ],
+  "claim_boundary": "Same-owner controlled mechanism-to-outcome evidence only; no independent adoption/dependency, market demand, external economic validation, universal transferability, or ecosystem-wide claim.",
+  "freeze_commit_sha": "see freeze-manifest.json protocol_commit_sha",
+  "native_controls": {
+    "required_pull_request": true,
+    "required_approving_reviews": 1,
+    "dismiss_stale_reviews": true,
+    "require_last_push_approval": true,
+    "required_status_check": "fixture-ci",
+    "require_up_to_date_branch": true,
+    "direct_push_to_protected_branch": false,
+    "administrator_bypass_during_trials": false,
+    "strict_up_to_date": true
+  },
+  "source_base_commit": "c5da7279eee2ac0c750c7f7f7b16bb6f65903174",
+  "execution_prerequisites": [
+    "Three disposable repositories with active native rules and no trial bypass",
+    "An already-authorized approving reviewer distinct from each PR author; no recruitment under issue #43",
+    "Read-only repository/PR data collection plus artifact-upload scope only; verify StateGate and artifact action identities; no code, PR, checks, or merge write scope."
+  ],
+  "upstream_contract_reference_commit": "32f51a591d7a5577f05cd1b72b7396eb6b0146d8"
+}
