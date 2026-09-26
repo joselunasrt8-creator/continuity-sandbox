@@ -1,24 +1,24 @@
 {
-  "freeze_manifest_version": "1.1.0",
+  "freeze_manifest_version": "1.2.0",
   "freeze_status": "PROTOCOL_FROZEN",
   "experiment_id": "stategate-mechanism-outcome-v1",
-  "protocol_commit_sha": "2d8cca1ba7f8d6ce584465f543352c6ff336bb14",
+  "protocol_commit_sha": "0c468af5b181b82b3cad68b7634ff3a2dccd91d6",
   "repository": "joselunasrt8-creator/continuity-sandbox",
   "protocol_artifact_hashes": {
-    "PROTOCOL.md": "sha256:0620fa732fafd2a2e00d1e6c37c5947e6d2cd73c80a5e59c27c029ce300e4e5d",
-    "SCENARIOS.json": "sha256:e40c4281ce7bda3a03139bc88b3fe12d6f256f6fad08b7ce30faac9ec3a36138",
+    "PROTOCOL.md": "sha256:fdce6429c3541a69eed4792f3843bedfc9d4acd6ca86514c5ed7b215a253d0d0",
+    "SCENARIOS.json": "sha256:a4d42d0147c5fd3c73276c3dcfd537926380175688dcafa3eb9ab9a3741b0488",
     "OUTCOME_OBJECT.schema.json": "sha256:e361976a2de7a5957769622d7b0fba3b556696b50b48f27a16a8eea05661103f",
     "TERMINAL_CLASSIFIER.json": "sha256:822f4e9641bf26497bf5db28b3d5cd80b4ec36da99e18620775f3420029b8260",
-    "experiment-manifest.json": "sha256:5ee8b37e39b3fc72ebfb94d945f88730038cd6ac8adc3cfc50f38fe44ecf66c6",
-    "evidence-requirements.md": "sha256:04eeece2ed4ee0fcf8d9f72a1e2e8def257dc56d8e1aa19e17358d8427fdfc22",
+    "experiment-manifest.json": "sha256:f3427fa297476ea308ea606497e2321ffe8cb4a36421cb3e87711216c00a10aa",
+    "evidence-requirements.md": "sha256:db3d5f09c709900354b7692f9562ac267efa06c1add3b1d35e488795db3d80b3",
     "analysis-plan.md": "sha256:f5500e8f45f31e49ff9366a72abc230cafb3a6c3717e44fa47c8c3d132184303",
-    "evidence-fields.json": "sha256:1925eca358adec9a737b1003ad7e2243a75290c02c028281d49e6facea63731d",
-    "common-collector.mjs": "sha256:5d5fb351021a6816e1b384b7fcbdd1054966975da157ec19dc170da664aeacae",
-    "common-collector.yml": "sha256:36bc9ccfc91cefc88add0e6e69feae50a27b4865240c9d1202c3cbc2f9d705a4",
+    "evidence-fields.json": "sha256:ead66daff41b1e7d9257d8a5d7fb403c916e40cd31ea088bea2a3bdba4770a48",
+    "common-collector.mjs": "sha256:205caf3451b9858ef600128ac02091f0f6c88f98fecf100edaed2ada620afd48",
+    "common-collector.yml": "sha256:3dc761cd61a66a8836c5f8b0371bdaf6cf0a3cecd10aa1175b232e3b34e6d39b",
     "snapshot-collector.mjs": "sha256:5ba2cec924fd1391be745a69d2ab44f74ec63747185355c724427aac1cca24d7",
     "snapshot-collector.yml": "sha256:74f8c4eaa4c86e8e00da476d6d6ede776b13db6437238f3a36b5c288c06f496d",
-    "replay-evidence.mjs": "sha256:eeed28708902661c4dacde2219c4a3d48d0612533f733b4ce79462d87b16476f",
-    "fixtures/BASE_TREE_MANIFEST.json": "sha256:3ab4e7ce667b6b69cfe73f854a786745f36061a0bd9ba9470d630cd1b5a60a4c",
+    "replay-evidence.mjs": "sha256:7ee7cb1a6ad318b57aaa55559aa4cd69bd26154f61fa8f3cc3bc92f396dc9a07",
+    "fixtures/BASE_TREE_MANIFEST.json": "sha256:1bedfc82583f36feaadaea265265461b9ff916532717d82776fa5a9041f2739a",
     "fixtures/FIXTURE_MANIFEST.json": "sha256:ecb3c904035a3d33c7b3ba64337a13d5cedd910fb0767aec936bdd820bc3f0fa",
     "fixtures/base/benchmark-fixture.txt": "sha256:b38bda3ec5110c256f2757fd863ce9334e9beacc5bbf4ed3ae3a564998680794",
     "fixtures/h1/benchmark-fixture.txt": "sha256:d8fb8a8fc89c797e5865004c429f6fc7c4a83bc9fd54111f5af2f9336d62b066",
@@ -27,7 +27,7 @@
     "fixtures/patches/h1-to-h2.patch": "sha256:f9faec9f9885383f8b28e25efbb906242628959206d601590da560baa9c75a20",
     "fixture-ci.yml": "sha256:ae99b15f78243b66ab8cfac643b2a3a9fa5db0cf466543941ed707896462e76a",
     "stategate-required-check.yml": "sha256:ca61f31b48726dc1d8ff89451eb4a67402b18f8369814fa0ffeeb15a2336531b",
-    "validate-protocol.mjs": "sha256:1dcedf8644f172418391d76e31cf3ed9344f85691cccb8e6d2c068048c326593"
+    "validate-protocol.mjs": "sha256:9ce70631fd988c6a4fda968b2d43206a4f6a9a536185b019e1cd21176974d7dc"
   },
   "hash_algorithm": "SHA-256 over exact committed file bytes",
   "hashing_scope": "Every experiment-manifest protocol artifact except freeze-manifest.json. The protocol_commit_sha identifies the payload commit containing these exact bytes; the final branch-head commit and freeze-manifest hash are recorded in the PR.",
@@ -36,26 +36,34 @@
   "experimental_outcomes_collected": false,
   "terminal": "PROTOCOL_FROZEN",
   "protocol_construction_base_commit": "c5da7279eee2ac0c750c7f7f7b16bb6f65903174",
-  "supersedes_failed_freeze_candidate": {
-    "payload_commit": "d3e518df008d41ac01f3d9bb110d743f6dca3287",
-    "reason": "Independent review found 11 unresolved protocol defects; this manifest does not treat that candidate as a valid freeze."
-  },
+  "supersedes_failed_freeze_candidates": [
+    {
+      "payload_commit": "d3e518df008d41ac01f3d9bb110d743f6dca3287",
+      "reason": "The first independent review found 11 protocol defect groups; this manifest does not treat that candidate as a valid freeze."
+    },
+    {
+      "payload_commit": "2d8cca1ba7f8d6ce584465f543352c6ff336bb14",
+      "reviewed_branch_head": "176e85ae3e4abbf06bed2c11d1dd8675cf1017e8",
+      "reason": "The second independent review found seven further protocol defects; this manifest does not treat that candidate as a valid freeze."
+    }
+  ],
   "validation": {
     "scenario_ids": "PASS: 24 unique IDs; six classes; four repetitions/class; repetition and frozen ground truth bound to each ID.",
-    "common_collector": "PASS: executable identical all-arm collector freezes endpoints/pagination/raw provenance, rejects head/base/review instability, and uses equal event plus one post-disposition schedule across arms.",
-    "completeness": "PASS: evidence-fields.json freezes 32 atomic standardized-packet fields, eligible sources, common-collector exclusion and denominator 32 for every class.",
-    "offline_replay": "PASS: command, input, normalization, output and pinned StateGate offline replay path frozen; no replay outcomes executed.",
+    "common_collector": "PASS: identical all-arm collector uses a separate Administration read-only credential for configuration GETs, preserves all check attempts with filter=all, rejects head/base/review instability, and uses equal scheduling.",
+    "completeness": "PASS: evidence-fields.json freezes 32 atomic fields and an attainable arm-neutral E32 source inventory, eligible sources, common-collector exclusion and denominator 32 for every class.",
+    "offline_replay": "PASS: native eligibility is derived from archived checks/reviews/protection; caller flags are rejected; Arm C verifies clean commit/tree/release files before import. Synthetic smoke only; no replay outcomes executed.",
     "outcome_schema": "PASS: derived false allow/block, scenario/repetition/ground-truth, UTC RFC 3339 and null-missingness negative tests pass.",
-    "fixture_identity": "PASS: exact per-arm full base root trees, BASE/H1/H2 bytes, SHA-256, git blob/subtree identities and patch bytes verified.",
+    "fixture_identity": "PASS: exact per-arm full base root trees, BASE/H1/H2 bytes, SHA-256, git blob/subtree identities and patch bytes verified; 24 unique protected target branches per arm are a pre-execution gate.",
     "freeze_hashes": "PASS: validator recomputes every declared non-self artifact hash.",
-    "stategate_release": "PASS: v1.1.1 exact commit dd6a607533b0c5c31eb99840e39d0a443998541a; no StateGate modification.",
+    "stategate_release": "PASS: v1.1.1 exact commit dd6a607533b0c5c31eb99840e39d0a443998541a, tree ea9e6482f88dc8c41c4d2a5fe3e20f4c27808cf5 and release files pinned; published tag verification passes; no StateGate modification.",
     "native_baseline": "PASS: exact required PR, approval, stale/current-push protection, strict up-to-date, fixture-ci, administrator enforcement and no bypass; live configuration remains a pre-execution gate.",
     "snapshot_comparator": "PASS: GET-only evidence exporter, separately preserves trigger identity, rejects mixed-object snapshots, and has no decision/merge logic.",
     "authority_boundary": "PASS: GitHub/operator remains authority; StateGate and collectors do not merge.",
     "experimental_outcomes": "NONE: no scenario PRs, replay results, blinded reconstruction or outcomes."
   },
   "future_execution_blockers": [
-    "Verify three disposable repositories instantiate exact native controls, frozen base trees, byte-identical common collector and Arm C required check; otherwise BLOCKED.",
+    "Verify three disposable repositories each instantiate 24 unique protected scenario target branches at the exact frozen arm base, byte-identical common collector and Arm C required check; otherwise BLOCKED.",
+    "Provision BENCHMARK_ADMIN_READ_TOKEN with Administration read-only and no write scope; verify branch-protection and ruleset GETs return HTTP 200 in every arm; otherwise BLOCKED.",
     "Verify equal staged canonical diff across all arms before every matched set; otherwise BLOCKED.",
     "Confirm an already-authorized reviewer distinct from each PR author; no recruitment under #43.",
     "Resolve StateGate's internal actions/upload-artifact@v4 identity and retention before trials; otherwise BLOCKED."
