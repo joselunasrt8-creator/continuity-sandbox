@@ -1,0 +1,9 @@
+diff --git a/benchmark/benchmark-fixture.txt b/benchmark/benchmark-fixture.txt
+--- a/benchmark/benchmark-fixture.txt
++++ b/benchmark/benchmark-fixture.txt
+@@ -1,3 +1,3 @@
+ fixture=stategate-mechanism-outcome-v1
+-object=H1
+-sequence=1
++object=H2
++sequence=2

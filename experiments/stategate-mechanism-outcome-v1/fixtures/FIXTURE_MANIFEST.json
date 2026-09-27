@@ -1,0 +1,54 @@
+{
+  "fixture_version": "1.0.0",
+  "target_path_in_execution_repository": "benchmark/benchmark-fixture.txt",
+  "line_endings": "LF",
+  "terminal_newline_required": true,
+  "states": {
+    "BASE": {
+      "source_file": "fixtures/base/benchmark-fixture.txt",
+      "byte_length": 62,
+      "sha256": "sha256:b38bda3ec5110c256f2757fd863ce9334e9beacc5bbf4ed3ae3a564998680794",
+      "git_blob_sha1": "9718dabf3fde82f17b09942ae660ad358e921175",
+      "single_file_tree_sha1": "d2e0a38434449c6de23adad9777e3397883d8c5a"
+    },
+    "H1": {
+      "source_file": "fixtures/h1/benchmark-fixture.txt",
+      "byte_length": 60,
+      "sha256": "sha256:d8fb8a8fc89c797e5865004c429f6fc7c4a83bc9fd54111f5af2f9336d62b066",
+      "git_blob_sha1": "dd644c5fe997f0faf939232cd8db828b0877d3f2",
+      "single_file_tree_sha1": "e23bf5dcecf9c41ec568ff6b21af94fc38c8382a"
+    },
+    "H2": {
+      "source_file": "fixtures/h2/benchmark-fixture.txt",
+      "byte_length": 60,
+      "sha256": "sha256:a30405c7062330f1d3c1a8feb697b45818c9f36f70e30f5611e901d5e1518626",
+      "git_blob_sha1": "276507d25bc4d15cc6e250befc55e84e0b3bda06",
+      "single_file_tree_sha1": "c03fe9c575874a90a3ead1a744bf54934dd00a73"
+    }
+  },
+  "patches": {
+    "BASE_TO_H1": {
+      "source_file": "fixtures/patches/base-to-h1.patch",
+      "byte_length": 259,
+      "sha256": "sha256:830588d146ac0ecaf0eef26ba8568920ef082e252b829699fcea9857c11c92b2"
+    },
+    "H1_TO_H2": {
+      "source_file": "fixtures/patches/h1-to-h2.patch",
+      "byte_length": 257,
+      "sha256": "sha256:f9faec9f9885383f8b28e25efbb906242628959206d601590da560baa9c75a20"
+    }
+  },
+  "base_identity_rule": "fixtures/BASE_TREE_MANIFEST.json freezes every repository-base file/path/mode and the full root tree SHA for each assigned arm. Before every episode verify the recorded base commit has that exact tree and target_path contains the BASE blob above. The canonical GitHub diff hash must be equal across the three staged arm commits for a matched set or that set is BLOCKED.",
+  "commit_rule": "Create H1 by replacing only target_path_in_execution_repository with the exact H1 bytes; create H2 by replacing only that path with the exact H2 bytes. Use one commit per state. Commit message is exactly 'fixture: <scenario_id> H1' or 'fixture: <scenario_id> H2'. Author and committer are the same frozen operator identity within all arms of a matched set; timestamps are recorded and equal within the matched set.",
+  "expected_diff_preparation": {
+    "canonicalization": "LF_NORMALIZE_TERMINAL_LF_PRESERVE_PATCH_TEXT_AND_ORDER",
+    "procedure": [
+      "Create the intended commit locally from the recorded execution base, then push it to a non-PR staging ref; push events are not benchmark decision events.",
+      "Before opening or advancing the PR branch, GET /repos/{owner}/{repo}/compare/{base_sha}...{staging_sha} with Accept application/vnd.github.diff.",
+      "Normalize CRLF/CR to LF and replace all terminal newlines with exactly one LF; SHA-256 the UTF-8 bytes with sha256: prefix.",
+      "Verify the staged commit changes only target_path_in_execution_repository and its bytes/hash equal this manifest.",
+      "For Arm C, set EXPECTED_DIFF_HASH to that hash and read it back before opening the PR or fast-forwarding the PR branch. For C4 only, deliberately retain O1/H1 while advancing the PR to O2/H2.",
+      "Open or advance the PR branch to the exact staged commit. Verify trigger payload head SHA equals the staged SHA. Any mismatch blocks the episode; no rerun repairs setup."
+    ]
+  }
+}

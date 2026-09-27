@@ -1,0 +1,50 @@
+name: Common evidence collector
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, closed]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+  workflow_run:
+    workflows: [Fixture CI]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number for the one common post-disposition checkpoint
+        required: true
+        type: string
+      checkpoint:
+        description: Frozen checkpoint name
+        required: true
+        type: choice
+        options: [post-disposition]
+
+permissions:
+  actions: read
+  checks: read
+  contents: read
+  pull-requests: read
+
+jobs:
+  collect:
+    name: common-evidence-collector
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.pull_requests[0] != null }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Capture common read-only evidence
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CONFIG_READ_TOKEN: ${{ secrets.BENCHMARK_ADMIN_READ_TOKEN }}
+          BENCHMARK_SCENARIO_ID: ${{ vars.BENCHMARK_SCENARIO_ID }}
+          BENCHMARK_ARM: ${{ vars.BENCHMARK_ARM }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: node experiments/stategate-mechanism-outcome-v1/common-collector.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: common-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: common-evidence.json
+          if-no-files-found: error
+          retention-days: 90
