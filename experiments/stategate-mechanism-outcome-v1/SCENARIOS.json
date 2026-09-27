@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.2.0",
+  "manifest_version": "1.3.0",
   "design": {
     "scenario_classes": 6,
     "repetitions_per_class": 4,
@@ -77,14 +77,14 @@
       "all_arms": ["replay_input_version", "scenario_id", "arm", "common_packet", "native_input"],
       "native_input": ["expected_head_sha", "expected_base_sha", "expected_diff_sha256"],
       "arm_C_additional": ["stategate_input", "archived_stategate_proof"],
-      "stategate_input_rule": "Exact archived validateMergeGuard input after acquisition: repo, pr_number, head_sha, base_sha, actor, author/attribution inputs, pr_diff exact bytes, diff_source, expected_diff_hash, require_review_approval, minimum_approvals, normalized review_evidence, evaluated_head_sha and evaluated_base_sha; omit github_token and github_api_url."
+    "stategate_input_rule": "Exact archived validateMergeGuard input after acquisition with only this frozen key set: repo, pr_number, head_sha, base_sha, actor, author_kind, require_agent_authored, pr_author, head_ref, pr_body, pr_labels, commit_trailers, operator_id, pr_diff, diff_source, expected_diff_hash, expected_proof_hash, expected_validated_object_hash, require_review_approval, minimum_approvals, review_evidence, expected_review_evidence_hash, evaluated_head_sha, evaluated_base_sha, diff_acquisition_failed, review_acquisition_failed. Omit github_token and github_api_url; the three unused expected-hash inputs and all unused attribution inputs must be explicit empty strings. common_packet.packet_version must equal 1.2.0."
     },
     "normalization": "UTF-8 JSON parsed then output serialized with JSON.stringify(value, null, 2) plus one LF; SHA-256 over exact input and output bytes.",
     "commands": {
       "A_or_B": "node replay-evidence.mjs --input replay-input.json --output replay-output-1.json; repeat to replay-output-2.json",
       "C": "node replay-evidence.mjs --input replay-input.json --output replay-output-1.json --stategate-dir /path/to/stategate-dd6a607; repeat to replay-output-2.json"
     },
-    "expected_output": "JSON replay_output_version 1.0.0 with scenario_id, arm, input_sha256, native {eligible,reasons,derived}, stategate (null for A/B; decision/proof/archived_proof_equal for C), and observed_eligible. Native fixture-CI success, current-head approval and rule compliance are derived from the archived packet and are never caller assertions. Both runs must have byte-identical output (there is no clock/run nonce), equal output SHA-256, and observed_eligible equal independently frozen ground truth. Arm C additionally requires archived_proof_equal=true, git checkout HEAD and tree at the pin, an empty worktree including untracked files, every release-manifest file hash, and the frozen release identities.",
+    "expected_output": "JSON replay_output_version 1.0.0 with scenario_id, arm, input_sha256, native {eligible,reasons,derived}, stategate (null for A/B; binding_checks/decision/proof/archived_proof_equal for C), and observed_eligible. Native fixture-CI success is taken only from the latest Fixture CI workflow run_number/run_attempt and its latest matching check run; current-head approval and rule compliance are derived from the archived packet. Caller assertions are forbidden. Arm C requires every binding_check true: the submitted-review trigger, repository, PR, head/base, canonical diff, normalized complete review evidence, policy, and frozen workflow inputs must identify the same common archived object. Both runs must have byte-identical output, equal output SHA-256, and observed_eligible equal independently frozen ground truth. Arm C additionally requires archived_proof_equal=true, git checkout HEAD and tree at the pin, an empty worktree including untracked files, every release-manifest file hash, and the frozen release identities.",
     "network_rule": "Run in a clean environment with outbound network disabled. No live GitHub acquisition or artifact substitution is permitted."
   },
   "scenario_classes": [
@@ -568,7 +568,7 @@
         "C"
       ],
       "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before opening a ready PR, provide no approval, and allow required checks to finish.",
-      "event_mutation_sequence": "OPEN \u2192 ready_for_review \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
+      "event_mutation_sequence": "OPEN(H1 as ready-for-review) \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
       "evidence_requirements": "Review API response/pagination, native rules, status checks, StateGate result/null reason, missingness source.",
       "expected_observations": "Ineligible in all arms because required approval/evidence absent; missing evidence is not imputed.",
       "stopping_behavior": "No merge; do not create malformed synthetic proof or alter permissions mid-trial.",
@@ -595,7 +595,7 @@
         "C"
       ],
       "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before opening a ready PR, provide no approval, and allow required checks to finish.",
-      "event_mutation_sequence": "OPEN \u2192 ready_for_review \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
+      "event_mutation_sequence": "OPEN(H1 as ready-for-review) \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
       "evidence_requirements": "Review API response/pagination, native rules, status checks, StateGate result/null reason, missingness source.",
       "expected_observations": "Ineligible in all arms because required approval/evidence absent; missing evidence is not imputed.",
       "stopping_behavior": "No merge; do not create malformed synthetic proof or alter permissions mid-trial.",
@@ -622,7 +622,7 @@
         "C"
       ],
       "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before opening a ready PR, provide no approval, and allow required checks to finish.",
-      "event_mutation_sequence": "OPEN \u2192 ready_for_review \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
+      "event_mutation_sequence": "OPEN(H1 as ready-for-review) \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
       "evidence_requirements": "Review API response/pagination, native rules, status checks, StateGate result/null reason, missingness source.",
       "expected_observations": "Ineligible in all arms because required approval/evidence absent; missing evidence is not imputed.",
       "stopping_behavior": "No merge; do not create malformed synthetic proof or alter permissions mid-trial.",
@@ -649,7 +649,7 @@
         "C"
       ],
       "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json; prestage/hash H1 before opening a ready PR, provide no approval, and allow required checks to finish.",
-      "event_mutation_sequence": "OPEN \u2192 ready_for_review \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
+      "event_mutation_sequence": "OPEN(H1 as ready-for-review) \u2192 CI passes \u2192 observe no approval/review evidence \u2192 disposition.",
       "evidence_requirements": "Review API response/pagination, native rules, status checks, StateGate result/null reason, missingness source.",
       "expected_observations": "Ineligible in all arms because required approval/evidence absent; missing evidence is not imputed.",
       "stopping_behavior": "No merge; do not create malformed synthetic proof or alter permissions mid-trial.",
@@ -676,7 +676,7 @@
         "C"
       ],
       "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json as in C1; freeze the CONSISTENT common packet and exact replay input before two clean offline replays.",
-      "event_mutation_sequence": "OPEN \u2192 current approval \u2192 checks pass \u2192 capture common + arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
+      "event_mutation_sequence": "OPEN(H1 ready) \u2192 latest Fixture CI attempt passes \u2192 submit current-head APPROVED review \u2192 capture the submitted-review common packet and matching arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
       "evidence_requirements": "Full common evidence packet, collector/snapshot/proof bytes, replay command/runtime identity and output hashes.",
       "expected_observations": "Eligible PR state; each arm replays its retained evidence using frozen common reference procedure; C additionally replays StateGate decision/proof from archived exact inputs.",
       "stopping_behavior": "No input changes/network fetch during replay; stop if archived evidence incomplete.",
@@ -703,7 +703,7 @@
         "C"
       ],
       "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json as in C1; freeze the CONSISTENT common packet and exact replay input before two clean offline replays.",
-      "event_mutation_sequence": "OPEN \u2192 current approval \u2192 checks pass \u2192 capture common + arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
+      "event_mutation_sequence": "OPEN(H1 ready) \u2192 latest Fixture CI attempt passes \u2192 submit current-head APPROVED review \u2192 capture the submitted-review common packet and matching arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
       "evidence_requirements": "Full common evidence packet, collector/snapshot/proof bytes, replay command/runtime identity and output hashes.",
       "expected_observations": "Eligible PR state; each arm replays its retained evidence using frozen common reference procedure; C additionally replays StateGate decision/proof from archived exact inputs.",
       "stopping_behavior": "No input changes/network fetch during replay; stop if archived evidence incomplete.",
@@ -730,7 +730,7 @@
         "C"
       ],
       "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json as in C1; freeze the CONSISTENT common packet and exact replay input before two clean offline replays.",
-      "event_mutation_sequence": "OPEN \u2192 current approval \u2192 checks pass \u2192 capture common + arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
+      "event_mutation_sequence": "OPEN(H1 ready) \u2192 latest Fixture CI attempt passes \u2192 submit current-head APPROVED review \u2192 capture the submitted-review common packet and matching arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
       "evidence_requirements": "Full common evidence packet, collector/snapshot/proof bytes, replay command/runtime identity and output hashes.",
       "expected_observations": "Eligible PR state; each arm replays its retained evidence using frozen common reference procedure; C additionally replays StateGate decision/proof from archived exact inputs.",
       "stopping_behavior": "No input changes/network fetch during replay; stop if archived evidence incomplete.",
@@ -757,7 +757,7 @@
         "C"
       ],
       "setup_procedure": "Apply exact BASE→H1 bytes from fixtures/FIXTURE_MANIFEST.json as in C1; freeze the CONSISTENT common packet and exact replay input before two clean offline replays.",
-      "event_mutation_sequence": "OPEN \u2192 current approval \u2192 checks pass \u2192 capture common + arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
+      "event_mutation_sequence": "OPEN(H1 ready) \u2192 latest Fixture CI attempt passes \u2192 submit current-head APPROVED review \u2192 capture the submitted-review common packet and matching arm artifacts \u2192 archive \u2192 two clean replays \u2192 authorized merge only after capture.",
       "evidence_requirements": "Full common evidence packet, collector/snapshot/proof bytes, replay command/runtime identity and output hashes.",
       "expected_observations": "Eligible PR state; each arm replays its retained evidence using frozen common reference procedure; C additionally replays StateGate decision/proof from archived exact inputs.",
       "stopping_behavior": "No input changes/network fetch during replay; stop if archived evidence incomplete.",

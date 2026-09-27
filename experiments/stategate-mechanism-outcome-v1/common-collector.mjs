@@ -73,13 +73,22 @@ for (const run of runs) {
 }
 const baseRef = prStart.json.base?.ref
 const protection = await request(`${api}/repos/${repo}/branches/${encodeURIComponent(baseRef)}/protection`, baseHeaders.accept, [200, 404], configReadToken)
-const rulesets = await pages(`${api}/repos/${repo}/rulesets?includes_parents=true&per_page=100`, null, baseHeaders.accept, configReadToken)
+const rulesetSummaries = await pages(`${api}/repos/${repo}/rulesets?includes_parents=true&per_page=100`, null, baseHeaders.accept, configReadToken)
+const rulesetDefinitions = []
+for (const summary of [...rulesetSummaries].sort((a, b) => Number(a.id) - Number(b.id))) {
+  if (!Number.isInteger(Number(summary.id)) || Number(summary.id) < 1) throw new Error('Ruleset summary lacks a valid id')
+  const definition = await request(`${api}/repos/${repo}/rulesets/${summary.id}`, baseHeaders.accept, [200], configReadToken)
+  rulesetDefinitions.push(definition.json)
+}
+const protectionEnd = await request(`${api}/repos/${repo}/branches/${encodeURIComponent(baseRef)}/protection`, baseHeaders.accept, [200, 404], configReadToken)
+const rulesetSummariesEnd = await pages(`${api}/repos/${repo}/rulesets?includes_parents=true&per_page=100`, null, baseHeaders.accept, configReadToken)
 const reviewsEnd = await pages(`${prUrl}/reviews?per_page=100`)
 const prEnd = await request(prUrl)
 
-const reviewProjection = rows => rows.map(r => ({ id: r.id, state: r.state, commit_id: r.commit_id, submitted_at: r.submitted_at, dismissed_at: r.dismissed_at ?? null, user_id: r.user?.id ?? null })).sort((a, b) => canonical(a).localeCompare(canonical(b)))
+const reviewProjection = rows => rows.map(r => ({ id: r.id, state: r.state, commit_id: r.commit_id, submitted_at: r.submitted_at, dismissed_at: r.dismissed_at ?? null, user_id: r.user?.id ?? null, user_login: r.user?.login ?? null })).sort((a, b) => canonical(a).localeCompare(canonical(b)))
 const stableObject = prStart.json.head?.sha === prEnd.json.head?.sha && prStart.json.base?.sha === prEnd.json.base?.sha && prStart.json.updated_at === prEnd.json.updated_at
 const stableReviews = canonical(reviewProjection(reviewsStart)) === canonical(reviewProjection(reviewsEnd))
+const stableConfiguration = protection.status === protectionEnd.status && canonical(protection.json) === canonical(protectionEnd.json) && canonical(rulesetSummaries) === canonical(rulesetSummariesEnd)
 const canonicalDiff = diff.body.replace(/\r\n?/g, '\n').replace(/\n*$/, '\n')
 const trigger = {
   event_name: process.env.GITHUB_EVENT_NAME ?? null,
@@ -94,29 +103,32 @@ const trigger = {
   base_sha: eventPr?.base?.sha ?? null,
   review_id: event.review?.id ?? null,
   review_commit_id: event.review?.commit_id ?? null,
-  sender_id: event.sender?.id ?? null
+  sender_id: event.sender?.id ?? null,
+  sender_login: event.sender?.login ?? null
 }
 const packet = {
-  packet_version: '1.0.0', collection_started_at: startedAt, collection_ended_at: new Date().toISOString(),
-  collection_status: stableObject && stableReviews ? 'CONSISTENT' : 'INCONSISTENT_RETRY_FORBIDDEN_AS_EVIDENCE',
+  packet_version: '1.2.0', collection_started_at: startedAt, collection_ended_at: new Date().toISOString(),
+  collection_status: stableObject && stableReviews && stableConfiguration ? 'CONSISTENT' : 'INCONSISTENT_RETRY_FORBIDDEN_AS_EVIDENCE',
   context: { scenario_id: scenarioId, repetition: Number(scenarioId.slice(-2)), arm },
   trigger,
   fetched_object: {
     repository: { id: repository.json.id, full_name: repository.json.full_name, html_url: repository.json.html_url },
-    pull_request: { number: prEnd.json.number, html_url: prEnd.json.html_url, author_user_id: prEnd.json.user?.id ?? null, state: prEnd.json.state, draft: prEnd.json.draft, merged: prEnd.json.merged, mergeable: prEnd.json.mergeable, mergeable_state: prEnd.json.mergeable_state, created_at: prEnd.json.created_at, updated_at: prEnd.json.updated_at, merged_at: prEnd.json.merged_at, closed_at: prEnd.json.closed_at },
-    head_sha: prEnd.json.head?.sha ?? null, base_sha: prEnd.json.base?.sha ?? null, base_ref: baseRef,
+    pull_request: { number: prEnd.json.number, html_url: prEnd.json.html_url, author_user_id: prEnd.json.user?.id ?? null, author_login: prEnd.json.user?.login ?? null, body: prEnd.json.body ?? '', labels: (prEnd.json.labels || []).map(label => label.name).sort(), state: prEnd.json.state, draft: prEnd.json.draft, merged: prEnd.json.merged, mergeable: prEnd.json.mergeable, mergeable_state: prEnd.json.mergeable_state, created_at: prEnd.json.created_at, updated_at: prEnd.json.updated_at, merged_at: prEnd.json.merged_at, closed_at: prEnd.json.closed_at },
+    head_sha: prEnd.json.head?.sha ?? null, head_ref: prEnd.json.head?.ref ?? null, base_sha: prEnd.json.base?.sha ?? null, base_ref: baseRef,
     diff_sha256: sha256(canonicalDiff), diff_canonicalization: 'LF_NORMALIZE_TERMINAL_LF_PRESERVE_PATCH_TEXT_AND_ORDER',
     commits, reviews: reviewProjection(reviewsEnd), checks, workflow_runs: runs, workflow_artifacts: artifacts,
-    timeline, branch_protection: { status: protection.status, body: protection.json }, rulesets: { status: 200, body: rulesets }
+    timeline, branch_protection: { status: protection.status, body: protection.json }, rulesets: { status: 200, summaries: rulesetSummaries, definitions: rulesetDefinitions }
   },
   consistency: {
     start_head_sha: prStart.json.head?.sha ?? null, end_head_sha: prEnd.json.head?.sha ?? null,
     start_base_sha: prStart.json.base?.sha ?? null, end_base_sha: prEnd.json.base?.sha ?? null,
     start_updated_at: prStart.json.updated_at, end_updated_at: prEnd.json.updated_at,
     reviews_start_sha256: sha256(canonical(reviewProjection(reviewsStart))), reviews_end_sha256: sha256(canonical(reviewProjection(reviewsEnd))),
-    stable_object: stableObject, stable_reviews: stableReviews
+    branch_protection_start_sha256: sha256(canonical({ status: protection.status, body: protection.json })), branch_protection_end_sha256: sha256(canonical({ status: protectionEnd.status, body: protectionEnd.json })),
+    ruleset_summaries_start_sha256: sha256(canonical(rulesetSummaries)), ruleset_summaries_end_sha256: sha256(canonical(rulesetSummariesEnd)),
+    stable_object: stableObject, stable_reviews: stableReviews, stable_configuration: stableConfiguration
   },
-  provenance: { source: 'GitHub REST API', api_version: '2022-11-28', collector: 'common-collector.mjs@1.1.0', credential_classes: { common: 'GITHUB_TOKEN_READ_ONLY', configuration: 'BENCHMARK_ADMIN_READ_TOKEN_ADMINISTRATION_READ_ONLY' }, raw_event: { sha256: sha256(eventBytes), body: event }, responses: sources }
+  provenance: { source: 'GitHub REST API', api_version: '2022-11-28', collector: 'common-collector.mjs@1.3.0', credential_classes: { common: 'GITHUB_TOKEN_READ_ONLY', configuration: 'BENCHMARK_ADMIN_READ_TOKEN_ADMINISTRATION_READ_ONLY' }, raw_event: { sha256: sha256(eventBytes), body: event }, responses: sources }
 }
 const output = `${JSON.stringify(packet, null, 2)}\n`
 await writeFile(outPath, output, { mode: 0o600 })

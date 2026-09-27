@@ -19,6 +19,7 @@
     "timestamps.collection_started_at",
     "timestamps.collection_ended_at",
     "timestamps.native_checks_success_at",
+    "timestamps.evaluation_ready_at",
     "observed_eligible",
     "execution_outcome",
     "false_allow",
@@ -37,6 +38,7 @@
     "rework.reruns",
     "rework.evidence_repairs",
     "evidence_completeness_percent",
+    "evidence_completeness",
     "proof_fidelity",
     "audit_reconstruction_seconds",
     "audit_reconstruction_correct",
@@ -87,6 +89,7 @@
     "event_counts",
     "rework",
     "evidence_completeness_percent",
+    "evidence_completeness",
     "proof_fidelity",
     "audit_reconstruction_seconds",
     "audit_reconstruction_correct",
@@ -106,7 +109,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "1.1.0"
+      "const": "1.2.0"
     },
     "scenario_id": {
       "type": "string",
@@ -246,7 +249,8 @@
         "execution_at",
         "collection_started_at",
         "collection_ended_at",
-        "native_checks_success_at"
+        "native_checks_success_at",
+        "evaluation_ready_at"
       ],
       "properties": {
         "opened_at": {
@@ -298,6 +302,14 @@
           "pattern": "Z$"
         },
         "native_checks_success_at": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "date-time",
+          "pattern": "Z$"
+        },
+        "evaluation_ready_at": {
           "type": [
             "null",
             "string"
@@ -461,6 +473,132 @@
       "minimum": 0,
       "maximum": 100
     },
+    "evidence_completeness": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "catalog_version",
+        "fields",
+        "numerator",
+        "failed_ids"
+      ],
+      "properties": {
+        "catalog_version": {
+          "const": "1.2.0"
+        },
+        "fields": {
+          "type": "array",
+          "minItems": 32,
+          "maxItems": 32,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "valid",
+              "source_bindings",
+              "reason"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^E(?:0[1-9]|[12][0-9]|3[0-2])$"
+              },
+              "valid": {
+                "type": "boolean"
+              },
+              "source_bindings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "artifact_id",
+                    "source_path"
+                  ],
+                  "properties": {
+                    "artifact_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "source_path": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "reason": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "valid": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "valid"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "source_bindings": {
+                      "minItems": 1
+                    },
+                    "reason": {
+                      "const": null
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "valid": {
+                      "const": false
+                    }
+                  },
+                  "required": [
+                    "valid"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "numerator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 32
+        },
+        "failed_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^E(?:0[1-9]|[12][0-9]|3[0-2])$"
+          }
+        }
+      }
+    },
     "proof_fidelity": {
       "type": [
         "null",
@@ -594,7 +732,8 @@
           },
           "discovered_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "pattern": "Z$"
           },
           "actor": {
             "type": "string"
@@ -622,7 +761,8 @@
           },
           "time": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "pattern": "Z$"
           },
           "effect": {
             "type": "string"
@@ -667,7 +807,8 @@
         },
         "observed_at": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "pattern": "Z$"
         }
       }
     },
@@ -699,7 +840,8 @@
           },
           "captured_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "pattern": "Z$"
           }
         }
       },
@@ -2936,6 +3078,58 @@
     {
       "if": {"properties": {"ground_truth_eligible": {"const": false}, "observed_eligible": {"const": false}}, "required": ["ground_truth_eligible", "observed_eligible"]},
       "then": {"properties": {"false_allow": {"const": false}, "false_block": {"const": false}}}
+    },
+    {
+      "if": {"properties": {"timestamps": {"properties": {"evaluation_ready_at": {"type": "null"}}, "required": ["evaluation_ready_at"]}}, "required": ["timestamps"]},
+      "then": {"properties": {"missingness": {"contains": {"type": "object", "properties": {"field_path": {"const": "timestamps.evaluation_ready_at"}}, "required": ["field_path"]}}}, "required": ["missingness"]}
+    },
+    {
+      "if": {"properties": {"evidence_completeness": {"type": "null"}}, "required": ["evidence_completeness"]},
+      "then": {"properties": {"missingness": {"contains": {"type": "object", "properties": {"field_path": {"const": "evidence_completeness"}}, "required": ["field_path"]}}}, "required": ["missingness"]}
+    },
+    {
+      "if": {"properties": {"execution_outcome": {"const": "MERGED"}}, "required": ["execution_outcome"]},
+      "then": {"properties": {"observed_eligible": {"const": true}}}
+    },
+    {
+      "if": {"properties": {"evidence_completeness": {"type": "null"}}, "required": ["evidence_completeness"]},
+      "then": {"properties": {"evidence_completeness_percent": {"const": null}}}
+    },
+    {
+      "if": {"properties": {"evidence_completeness": {"type": "object"}}, "required": ["evidence_completeness"]},
+      "then": {"properties": {"evidence_completeness_percent": {"type": "number"}}}
+    },
+    {
+      "if": {"properties": {"scenario_id": {"pattern": "^SG-MO1-C6-"}}, "required": ["scenario_id"]},
+      "then": {"properties": {"reproducibility": {"enum": ["PASS", "FAIL", "MISSING"]}}}
+    },
+    {
+      "if": {"properties": {"scenario_id": {"pattern": "^SG-MO1-C[1-5]-"}}, "required": ["scenario_id"]},
+      "then": {"properties": {"reproducibility": {"const": "NOT_APPLICABLE"}}}
+    },
+    {
+      "if": {"properties": {"reproducibility": {"const": "MISSING"}}, "required": ["reproducibility"]},
+      "then": {"properties": {"missingness": {"contains": {"type": "object", "properties": {"field_path": {"const": "reproducibility"}}, "required": ["field_path"]}}}}
+    },
+    {
+      "if": {"properties": {"reproducibility": {"const": "NOT_APPLICABLE"}}, "required": ["reproducibility"]},
+      "then": {"properties": {"missingness": {"contains": {"type": "object", "properties": {"field_path": {"const": "reproducibility"}, "code": {"const": "NOT_APPLICABLE"}}, "required": ["field_path", "code"]}}}}
+    },
+    {
+      "if": {"properties": {"observed_eligible": {"const": null}}, "required": ["observed_eligible"]},
+      "then": {"properties": {"missed_invalid_state": {"const": null}}}
+    },
+    {
+      "if": {"properties": {"ground_truth_eligible": {"const": true}, "observed_eligible": {"type": "boolean"}}, "required": ["ground_truth_eligible", "observed_eligible"]},
+      "then": {"properties": {"missed_invalid_state": {"const": false}}}
+    },
+    {
+      "if": {"properties": {"ground_truth_eligible": {"const": false}, "observed_eligible": {"const": true}}, "required": ["ground_truth_eligible", "observed_eligible"]},
+      "then": {"properties": {"missed_invalid_state": {"const": true}}}
+    },
+    {
+      "if": {"properties": {"ground_truth_eligible": {"const": false}, "observed_eligible": {"const": false}}, "required": ["ground_truth_eligible", "observed_eligible"]},
+      "then": {"properties": {"missed_invalid_state": {"const": false}}}
     }
   ]
 }

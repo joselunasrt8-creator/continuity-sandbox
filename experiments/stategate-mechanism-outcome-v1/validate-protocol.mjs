@@ -16,7 +16,15 @@ const errors = []
 const assert = (condition, message) => { if (!condition) errors.push(message) }
 const sha = (algorithm, bytes) => createHash(algorithm).update(bytes).digest('hex')
 const getPath = (object, path) => path.split('.').reduce((value, key) => value == null ? undefined : value[key], object)
-const isUtcRfc3339 = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(value) && !Number.isNaN(Date.parse(value))
+const isUtcRfc3339 = value => {
+  if (typeof value !== 'string') return false
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?Z$/)
+  if (!match) return false
+  const [, year, month, day, hour, minute, second] = match.map((part, index) => index === 0 ? part : Number(part))
+  if (month < 1 || month > 12 || hour > 23 || minute > 59 || second > 59) return false
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate()
+  return day >= 1 && day <= daysInMonth && !Number.isNaN(Date.parse(value))
+}
 
 const ids = scenarios.scenarios.map(row => row.scenario_id)
 assert(ids.length === 24 && new Set(ids).size === 24, 'must contain exactly 24 unique scenario IDs')
@@ -39,6 +47,8 @@ for (const row of scenarios.scenarios) {
   assert(row.matched_arms.join(',') === 'A,B,C', row.scenario_id + ' arm coverage invalid')
   assert(row.ground_truth.source.includes('arm output is excluded'), row.scenario_id + ' ground truth not arm-independent')
   if (row.scenario_class_id === 'C1') assert(!row.event_mutation_sequence.includes('synchronize') && row.event_mutation_sequence.startsWith('OPEN(H1 as ready-for-review)'), row.scenario_id + ' has impossible C1 event sequence')
+  if (row.scenario_class_id === 'C5') assert(row.event_mutation_sequence.startsWith('OPEN(H1 as ready-for-review)') && !row.event_mutation_sequence.includes('ready_for_review'), row.scenario_id + ' has impossible C5 ready event sequence')
+  if (row.scenario_class_id === 'C6') assert(row.event_mutation_sequence.includes('latest Fixture CI attempt passes') && row.event_mutation_sequence.includes('submitted-review common packet'), row.scenario_id + ' does not bind replay to the decision event/latest CI attempt')
   for (const field of ['setup_procedure', 'ground_truth', 'event_mutation_sequence', 'evidence_requirements', 'expected_observations', 'stopping_behavior', 'permitted_deviations']) {
     assert(row[field] != null, row.scenario_id + ' missing ' + field)
   }
@@ -55,12 +65,14 @@ assert(manifest.stategate.uses.endsWith('@' + pin), 'StateGate uses ref not immu
 assert(manifest.stategate.pinned_commit_tree_sha1 === 'ea9e6482f88dc8c41c4d2a5fe3e20f4c27808cf5', 'StateGate commit tree drift')
 assert(manifest.stategate.release_manifest_file_sha256 === 'sha256:f797073269e75d14e3be80824e1cb37a75ce81f44fbcc5c8f5e0d2f3e40449e5', 'StateGate release manifest byte hash drift')
 assert(manifest.scenario_execution_authorized === false && manifest.outcomes_collected === false, 'protocol-only terminal must be explicit')
+assert(manifest.native_controls?.rule_surface === 'classic_branch_protection_only' && manifest.native_controls?.repository_or_inherited_rulesets_allowed === false, 'native rule surface must be classic branch protection with zero rulesets')
 assert(scenarios.design.execution_authorized === false, 'scenario execution must remain unauthorized')
 assert(classifier.terminal_values.join(',') === 'MEASURABLE_IMPROVEMENT,NO_MATERIAL_DIFFERENCE,MEASURABLE_HARM,TOO_COSTLY,BLOCKED,INDETERMINATE', 'terminal classifier values/order changed')
 assert(classifier.improvement_gate.all_required.length === 5, 'improvement gate incomplete')
 assert(classifier.precedence.length === 6 && classifier.harm_rules.false_allow, 'terminal harm/precedence definitions incomplete')
 
 assert(evidence.fields.length === 32, 'evidence completeness catalog must have exactly 32 atomic fields')
+assert(evidence.catalog_version === '1.2.0', 'evidence completeness catalog version drift')
 assert(new Set(evidence.fields.map(field => field.id)).size === 32, 'evidence field IDs must be unique')
 for (const cls of ['C1', 'C2', 'C3', 'C4', 'C5', 'C6']) {
   const denominator = evidence.fields.filter(field => field.terminal_metric && field.applicable_classes.includes(cls)).length
@@ -115,11 +127,11 @@ for (const arm of ['A', 'B', 'C']) {
 }
 
 const requiredFields = schema.required
-assert(schema.allOf.length === schema['x-null-requires-missingness'].length + 5, 'schema null-missingness conditional count drift')
+assert(schema.allOf.length >= schema['x-null-requires-missingness'].length + 12, 'schema invariant conditional count drift')
 for (const path of schema['x-null-requires-missingness']) {
   assert(schema.allOf.some(rule => JSON.stringify(rule.then || {}).includes('"const":"' + path + '"')), 'schema lacks standard missingness conditional: ' + path)
 }
-for (const name of ['scenario_id', 'arm', 'trial_id', 'repository', 'pull_request', 'head', 'base', 'diff_identity', 'review_state', 'timestamps', 'ground_truth_eligible', 'observed_eligible', 'execution_outcome', 'false_allow', 'false_block', 'decision_time_seconds', 'added_gating_delay_seconds', 'operator_handling_seconds', 'event_counts', 'rework', 'evidence_completeness_percent', 'proof_fidelity', 'audit_reconstruction_seconds', 'ci_elapsed_seconds', 'ci_billable_minutes', 'manual_interventions', 'reproducibility', 'decision_changed_vs_A', 'economic_proxy', 'missingness', 'deviations', 'provenance', 'artifacts']) {
+for (const name of ['scenario_id', 'arm', 'trial_id', 'repository', 'pull_request', 'head', 'base', 'diff_identity', 'review_state', 'timestamps', 'ground_truth_eligible', 'observed_eligible', 'execution_outcome', 'false_allow', 'false_block', 'missed_invalid_state', 'decision_time_seconds', 'added_gating_delay_seconds', 'operator_handling_seconds', 'event_counts', 'rework', 'evidence_completeness_percent', 'evidence_completeness', 'proof_fidelity', 'audit_reconstruction_seconds', 'ci_elapsed_seconds', 'ci_billable_minutes', 'manual_interventions', 'reproducibility', 'decision_changed_vs_A', 'economic_proxy', 'missingness', 'deviations', 'provenance', 'artifacts']) {
   assert(requiredFields.includes(name), 'outcome schema missing ' + name)
 }
 
@@ -163,6 +175,7 @@ function validate(value, currentSchema, at, out) {
   }
   if (Array.isArray(value)) {
     if (currentSchema.minItems !== undefined && value.length < currentSchema.minItems) out.push(at + ': minItems')
+    if (currentSchema.maxItems !== undefined && value.length > currentSchema.maxItems) out.push(at + ': maxItems')
     if (currentSchema.uniqueItems && new Set(value.map(item => JSON.stringify(item))).size !== value.length) out.push(at + ': uniqueItems')
     if (currentSchema.items) value.forEach((item, index) => validate(item, currentSchema.items, at + '[' + index + ']', out))
     if (currentSchema.contains && !value.some(item => { const candidate = []; validate(item, currentSchema.contains, at, candidate); return candidate.length === 0 })) out.push(at + ': contains')
@@ -186,10 +199,38 @@ function validateOutcome(outcome) {
   if (!scenario) outcomeErrors.push('$.scenario_id: not found in SCENARIOS.json')
   if (scenario && outcome.repetition !== scenario.repetition) outcomeErrors.push('$.repetition: does not match scenario')
   if (scenario && outcome.ground_truth_eligible !== scenario.ground_truth.eligible) outcomeErrors.push('$.ground_truth_eligible: does not match frozen scenario')
+  if (outcome.execution_outcome === 'MERGED' && outcome.observed_eligible !== true) outcomeErrors.push('$.execution_outcome: MERGED requires observed_eligible=true')
   const expectedFalseAllow = outcome.observed_eligible === null ? null : !outcome.ground_truth_eligible && outcome.observed_eligible
   const expectedFalseBlock = outcome.observed_eligible === null ? null : outcome.ground_truth_eligible && !outcome.observed_eligible
+  const expectedMissedInvalid = outcome.observed_eligible === null ? null : !outcome.ground_truth_eligible && outcome.observed_eligible
   if (outcome.false_allow !== expectedFalseAllow) outcomeErrors.push('$.false_allow: must be derived from eligibility')
   if (outcome.false_block !== expectedFalseBlock) outcomeErrors.push('$.false_block: must be derived from eligibility')
+  if (outcome.missed_invalid_state !== expectedMissedInvalid) outcomeErrors.push('$.missed_invalid_state: must be derived from independent ground truth and arm eligibility')
+  const readyAt = outcome.timestamps?.evaluation_ready_at
+  const decisionAt = outcome.timestamps?.decision_at
+  if (readyAt !== null && decisionAt !== null) {
+    const derivedDelay = (Date.parse(decisionAt) - Date.parse(readyAt)) / 1000
+    if (derivedDelay < 0) outcomeErrors.push('$.added_gating_delay_seconds: decision precedes evaluation-ready causal anchor')
+    if (typeof outcome.added_gating_delay_seconds !== 'number' || Math.abs(outcome.added_gating_delay_seconds - derivedDelay) > 1e-9) outcomeErrors.push('$.added_gating_delay_seconds: must equal decision_at - evaluation_ready_at')
+  }
+  const completeness = outcome.evidence_completeness
+  if (completeness !== null && Array.isArray(completeness?.fields) && Array.isArray(completeness?.failed_ids)) {
+    const expectedIds = evidence.fields.map(field => field.id).sort()
+    const actualIds = completeness.fields.map(field => field.id).sort()
+    if (actualIds.length !== 32 || new Set(actualIds).size !== 32 || actualIds.join(',') !== expectedIds.join(',')) outcomeErrors.push('$.evidence_completeness.fields: must contain E01-E32 exactly once')
+    const validFields = completeness.fields.filter(field => field.valid)
+    const failedIds = completeness.fields.filter(field => !field.valid).map(field => field.id).sort()
+    if (completeness.numerator !== validFields.length) outcomeErrors.push('$.evidence_completeness.numerator: must equal valid field count')
+    if ([...completeness.failed_ids].sort().join(',') !== failedIds.join(',')) outcomeErrors.push('$.evidence_completeness.failed_ids: must equal invalid field IDs')
+    const expectedPercent = 100 * validFields.length / 32
+    if (typeof outcome.evidence_completeness_percent !== 'number' || Math.abs(outcome.evidence_completeness_percent - expectedPercent) > 1e-9) outcomeErrors.push('$.evidence_completeness_percent: must equal 100 * numerator / 32')
+    const artifactIds = new Set((outcome.artifacts || []).map(artifact => artifact.artifact_id))
+    for (const field of validFields) for (const binding of field.source_bindings) if (!artifactIds.has(binding.artifact_id)) outcomeErrors.push(`$.evidence_completeness.fields.${field.id}: unknown artifact binding ${binding.artifact_id}`)
+  } else if (completeness !== null) outcomeErrors.push('$.evidence_completeness: malformed scoring object')
+  if (scenario?.scenario_class_id === 'C6' && !['PASS', 'FAIL', 'MISSING'].includes(outcome.reproducibility)) outcomeErrors.push('$.reproducibility: C6 requires PASS, FAIL, or MISSING')
+  if (scenario && scenario.scenario_class_id !== 'C6' && outcome.reproducibility !== 'NOT_APPLICABLE') outcomeErrors.push('$.reproducibility: C1-C5 require NOT_APPLICABLE')
+  if (outcome.reproducibility === 'MISSING' && !(outcome.missingness || []).some(item => item.field_path === 'reproducibility')) outcomeErrors.push('$.reproducibility: MISSING requires reason')
+  if (outcome.reproducibility === 'NOT_APPLICABLE' && !(outcome.missingness || []).some(item => item.field_path === 'reproducibility' && item.code === 'NOT_APPLICABLE')) outcomeErrors.push('$.reproducibility: NOT_APPLICABLE requires matching reason')
   const missingPaths = new Set((outcome.missingness || []).map(item => item.field_path))
   for (const path of schema['x-null-requires-missingness']) {
     if (getPath(outcome, path) === null && !missingPaths.has(path)) outcomeErrors.push('$.' + path + ': null lacks matching missingness record')
@@ -213,6 +254,8 @@ const commonCollector = await readFile(join(root, 'common-collector.mjs'), 'utf8
 assert(commonCollector.includes('prStart') && commonCollector.includes('prEnd') && commonCollector.includes('reviewsStart') && commonCollector.includes('reviewsEnd'), 'common collector lacks consistency bracket')
 assert(commonCollector.includes('/protection') && commonCollector.includes('/rulesets') && commonCollector.includes('/check-runs') && commonCollector.includes('/artifacts'), 'common collector endpoint coverage incomplete')
 assert(commonCollector.includes('check-runs?filter=all&per_page=100'), 'common collector must preserve all check-run attempts')
+assert(commonCollector.includes('/rulesets/${summary.id}') && commonCollector.includes('rulesetDefinitions'), 'common collector must archive full definitions for every ruleset summary')
+assert(commonCollector.includes('protectionEnd') && commonCollector.includes('rulesetSummariesEnd') && commonCollector.includes('stableConfiguration'), 'common collector lacks configuration consistency bracket')
 assert(commonCollector.includes('CONFIG_READ_TOKEN') && commonCollector.includes('configReadToken'), 'common collector lacks separate configuration read credential')
 const commonWorkflow = await readFile(join(root, 'common-collector.yml'), 'utf8')
 assert(commonWorkflow.includes('CONFIG_READ_TOKEN: ${{ secrets.BENCHMARK_ADMIN_READ_TOKEN }}'), 'common workflow lacks Administration read-only secret binding')
@@ -224,21 +267,25 @@ assert(!/\bfetch\s*\(/.test(replay), 'offline replay must not contain network fe
 assert(replay.includes(pin) && replay.includes('validateMergeGuard'), 'offline replay lacks pinned StateGate validation')
 assert(!/native\.(fixture_ci_success|current_head_approval|native_rules_verified)/.test(replay), 'offline replay trusts caller-supplied native eligibility facts')
 assert(replay.includes("check.name === 'fixture-ci'") && replay.includes("review.state === 'APPROVED'") && replay.includes('required_pull_request_reviews'), 'offline replay does not derive native eligibility from packet')
+assert(replay.includes('run_attempt') && replay.includes('latestFixtureRun') && replay.includes('latestFixtureCheck'), 'offline replay does not bind Fixture CI to latest run attempt/check')
+assert(replay.includes('bindingChecks') && replay.includes('StateGate/common-packet binding mismatch') && replay.includes('commonReviewEvidence'), 'offline replay lacks exact StateGate/common-object binding')
+assert(replay.includes('expectedStateGateKeys') && replay.includes("packet.packet_version !== '1.2.0'"), 'offline replay does not freeze exact StateGate/common input schemas')
 assert(replay.includes("status', '--porcelain=v1', '--untracked-files=all") && replay.includes("HEAD^{tree}") && replay.includes('for (const file of release.files)'), 'offline replay lacks clean pinned tree/release file verification')
 
 const placeholder = {}
 for (const key of requiredFields) placeholder[key] = null
-placeholder.schema_version = '1.1.0'; placeholder.scenario_id = 'SG-MO1-C1-R01'; placeholder.arm = 'A'; placeholder.trial_id = 'STRUCTURAL_SCHEMA_CHECK'; placeholder.repetition = 1
+placeholder.schema_version = '1.2.0'; placeholder.scenario_id = 'SG-MO1-C1-R01'; placeholder.arm = 'A'; placeholder.trial_id = 'STRUCTURAL_SCHEMA_CHECK'; placeholder.repetition = 1
 placeholder.repository = { owner: 'owner', name: 'repo', id: null, url: 'https://example.invalid/repo' }
 placeholder.pull_request = { number: null, url: null, event_id: null }
 placeholder.head = { event_sha: null, decision_sha: null, executed_sha: null }
 placeholder.base = { event_sha: null, decision_sha: null }
 placeholder.diff_identity = { intended_sha256: null, observed_sha256: null, executed_sha256: null, canonicalization: null }
 placeholder.review_state = { decision_head_sha: null, approval_count: null, latest_approval_ids: [], evidence_sha256: null }
-placeholder.timestamps = Object.fromEntries(['opened_at', 'event_at', 'decision_at', 'execution_at', 'collection_started_at', 'collection_ended_at', 'native_checks_success_at'].map(key => [key, null]))
+placeholder.timestamps = Object.fromEntries(['opened_at', 'event_at', 'decision_at', 'execution_at', 'collection_started_at', 'collection_ended_at', 'native_checks_success_at', 'evaluation_ready_at'].map(key => [key, null]))
 placeholder.ground_truth_eligible = true
+placeholder.reproducibility = 'NOT_APPLICABLE'
 placeholder.economic_proxy = { labor_cost: null, ci_cost: null, currency: null, rate_source: null }
-placeholder.missingness = schema['x-null-requires-missingness'].map(path => ({ field_path: path, code: 'NOT_COLLECTED', reason: 'ephemeral schema validation', discovered_at: '2026-09-26T00:00:00Z', actor: 'validator' }))
+placeholder.missingness = schema['x-null-requires-missingness'].map(path => ({ field_path: path, code: path === 'reproducibility' ? 'NOT_APPLICABLE' : 'NOT_COLLECTED', reason: 'ephemeral schema validation', discovered_at: '2026-09-26T00:00:00Z', actor: 'validator' }))
 placeholder.deviations = []
 placeholder.artifacts = [{ artifact_id: 'SCHEMA-ONLY', kind: 'schema-structure', sha256: 'sha256:' + '0'.repeat(64), source: 'ephemeral structural validation', captured_at: '2026-09-26T00:00:00Z' }]
 placeholder.provenance = { collector_version: null, collector_sha256: null, workflow_sha: null, stategate_sha: null, observed_at: '2026-09-26T00:00:00Z' }
@@ -252,12 +299,31 @@ assert(validateOutcome(contradiction).some(error => error.includes('false_allow'
 const invalidTime = structuredClone(placeholder)
 invalidTime.timestamps.event_at = 'not-a-time'
 assert(validateOutcome(invalidTime).some(error => error.includes('date-time')), 'negative test failed: invalid timestamp accepted')
+const invalidCalendarTime = structuredClone(placeholder)
+invalidCalendarTime.timestamps.event_at = '2026-02-30T00:00:00Z'
+assert(validateOutcome(invalidCalendarTime).some(error => error.includes('date-time')), 'negative test failed: impossible calendar timestamp accepted')
+const nonUtcTime = structuredClone(placeholder)
+nonUtcTime.timestamps.event_at = '2026-09-26T00:00:00+00:00'
+assert(validateOutcome(nonUtcTime).some(error => error.includes('date-time') || error.includes('pattern')), 'negative test failed: non-Z timestamp accepted')
 const wrongRepetition = structuredClone(placeholder)
 wrongRepetition.repetition = 4
 assert(validateOutcome(wrongRepetition).some(error => error.includes('repetition')), 'negative test failed: scenario/repetition mismatch accepted')
 const missingReason = structuredClone(placeholder)
 missingReason.missingness = missingReason.missingness.filter(item => item.field_path !== 'decision_time_seconds')
 assert(validateOutcome(missingReason).some(error => error.includes('decision_time_seconds')), 'negative test failed: unannotated null accepted')
+const ineligibleMerge = structuredClone(placeholder)
+ineligibleMerge.scenario_id = 'SG-MO1-C2-R01'; ineligibleMerge.ground_truth_eligible = false; ineligibleMerge.observed_eligible = false; ineligibleMerge.execution_outcome = 'MERGED'; ineligibleMerge.false_allow = false; ineligibleMerge.false_block = false; ineligibleMerge.missed_invalid_state = false
+assert(validateOutcome(ineligibleMerge).some(error => error.includes('MERGED requires observed_eligible')), 'negative test failed: ineligible merge escaped false allow')
+const forgedCompleteness = structuredClone(placeholder)
+forgedCompleteness.evidence_completeness = { catalog_version: '1.2.0', fields: evidence.fields.map(field => ({ id: field.id, valid: true, source_bindings: [{ artifact_id: 'SCHEMA-ONLY', source_path: '$' }], reason: null })), numerator: 32, failed_ids: [] }
+forgedCompleteness.evidence_completeness_percent = 0
+assert(validateOutcome(forgedCompleteness).some(error => error.includes('100 * numerator / 32')), 'negative test failed: forged completeness percentage accepted')
+const wrongClassReplay = structuredClone(placeholder)
+wrongClassReplay.reproducibility = 'PASS'
+assert(validateOutcome(wrongClassReplay).some(error => error.includes('C1-C5 require NOT_APPLICABLE')), 'negative test failed: non-C6 replay result accepted')
+const invalidDelay = structuredClone(placeholder)
+invalidDelay.timestamps.evaluation_ready_at = '2026-09-26T00:00:10Z'; invalidDelay.timestamps.decision_at = '2026-09-26T00:00:05Z'; invalidDelay.added_gating_delay_seconds = 0
+assert(validateOutcome(invalidDelay).some(error => error.includes('causal anchor')), 'negative test failed: causally invalid gating delay accepted')
 
 for (const file of process.argv.slice(2)) {
   const outcome = JSON.parse(await readFile(file, 'utf8'))
@@ -270,7 +336,8 @@ if (errors.length) {
   process.exit(1)
 }
 console.log('Protocol consistency PASS: 24 scenarios, 6 classes, 24 matched sets, 72 maximum episodes, 32-field completeness denominator.')
-console.log('Outcome invariants PASS: eligibility-derived errors, scenario/repetition/ground-truth binding, UTC RFC 3339 timestamps, and null missingness.')
+console.log('Outcome invariants PASS: eligibility-derived errors, merge safety, mechanical E01-E32 scoring, class-bound replay, causal delay, UTC RFC 3339 timestamps, and null missingness.')
 console.log('Fixture identities PASS: exact bytes, SHA-256, git blobs, single-file trees, and patch bytes.')
+console.log('Collector/replay invariants PASS: stable full native configuration, latest CI attempt, exact common-object binding, and clean immutable StateGate checkout.')
 console.log('Freeze manifest PASS: every declared non-self artifact hash matches current bytes.')
 console.log('No experimental outcomes created or required by this validation.')
