@@ -1,0 +1,83 @@
+{
+  "freeze_manifest_version": "1.4.0",
+  "freeze_status": "REPAIRED_PENDING_REVIEW",
+  "experiment_id": "stategate-mechanism-outcome-v1",
+  "protocol_commit_sha": "724a3418e50c5c9a6dcd316245e48e3f3985b4e5",
+  "repository": "joselunasrt8-creator/continuity-sandbox",
+  "protocol_artifact_hashes": {
+    "PROTOCOL.md": "sha256:6e7be71e63c35940a41d849b9dad77c4c4ef121758ea077f6174f14f6a5339b0",
+    "SCENARIOS.json": "sha256:82a9ed940c5923a58a5c2128ca47373890c94624d821792de5926dd5106e2f2f",
+    "OUTCOME_OBJECT.schema.json": "sha256:a100cd866ddcc2881bfec9e667c880a6ca2448c66aa816886c76497ba6e3046d",
+    "TERMINAL_CLASSIFIER.json": "sha256:fef5f32dd2d0a993945a8e525c51ae4016c91c49c6fa9ec428d0b0233a761b74",
+    "experiment-manifest.json": "sha256:f4e6a36223ff4fc926d62ad5bfb3f1802c419cb248fbda7d8e0a9956f9bddf7f",
+    "evidence-requirements.md": "sha256:f0aaabeee847e8166d4e49027ff43fa5478874ac3c52b0d8b52574787111d7d3",
+    "analysis-plan.md": "sha256:e3448a47499fcc2846a7557116e3eff39b01fa6bde7d5f32b7155be31a8bb4c3",
+    "evidence-fields.json": "sha256:42861aa066f1fedc4dcc6834261a88c8177eb68d5fa635188bf70b5954df7561",
+    "common-collector.mjs": "sha256:e11389cf0b8ca80b80bf4c34d522d1f4f8c9485dcf5ea630e97cfc971482901d",
+    "common-collector.yml": "sha256:1a749fc8db82080255105750a4bb7801954e48e615f0c3a76150af1ae8644ec6",
+    "snapshot-collector.mjs": "sha256:5ba2cec924fd1391be745a69d2ab44f74ec63747185355c724427aac1cca24d7",
+    "snapshot-collector.yml": "sha256:8c74d1b7c15201bc9f718f60288da6be86001d747f6de2ca8278a638b918a72f",
+    "replay-evidence.mjs": "sha256:40a219a2d8401ee09bd6224154980022e6198d15029c9471680f23a5992845c6",
+    "fixtures/BASE_TREE_MANIFEST.json": "sha256:0b4727bb33219adabccbd5818ac212a173b41f9bc59fa637212732892e800aae",
+    "fixtures/FIXTURE_MANIFEST.json": "sha256:ecb3c904035a3d33c7b3ba64337a13d5cedd910fb0767aec936bdd820bc3f0fa",
+    "fixtures/base/benchmark-fixture.txt": "sha256:b38bda3ec5110c256f2757fd863ce9334e9beacc5bbf4ed3ae3a564998680794",
+    "fixtures/h1/benchmark-fixture.txt": "sha256:d8fb8a8fc89c797e5865004c429f6fc7c4a83bc9fd54111f5af2f9336d62b066",
+    "fixtures/h2/benchmark-fixture.txt": "sha256:a30405c7062330f1d3c1a8feb697b45818c9f36f70e30f5611e901d5e1518626",
+    "fixtures/patches/base-to-h1.patch": "sha256:830588d146ac0ecaf0eef26ba8568920ef082e252b829699fcea9857c11c92b2",
+    "fixtures/patches/h1-to-h2.patch": "sha256:f9faec9f9885383f8b28e25efbb906242628959206d601590da560baa9c75a20",
+    "fixture-ci.yml": "sha256:ae99b15f78243b66ab8cfac643b2a3a9fa5db0cf466543941ed707896462e76a",
+    "stategate-required-check.yml": "sha256:f2461533117c2740785c514b5cf9e0d102765478725fe2fa506e61497e47b4a7",
+    "validate-protocol.mjs": "sha256:17dae87e23d39676197ad50f810bd78ff7eed3bfb6e75bde473f76326f431421",
+    "native-event-archive.yml": "sha256:27f80256ece15e9a0bbdee1fbd7939b9650de8dbc043a07689d6db53278ff561",
+    "evidence-validation.mjs": "sha256:655bbc1104feb0d4669b26626151c8a9c4a1e7d8f961f4de3e4ffb9df2fe43d6",
+    "regression-tests.mjs": "sha256:6c4ab1d4bceee93f0365f156bf4d5c9602efbf59f00ed79319e9f24fade204e6",
+    "measurement-contract.json": "sha256:2f40c56170468351dc5fa754398a8f75d610a75ba3c5c53ee878ca0aada6472c",
+    "REPAIR_V1_4.md": "sha256:c8b4a2f831316c265fbaafd8321fbd29eceac26dd9368d1f7fe50d80de2a861e",
+    "history/v1.3-freeze-manifest.json": "sha256:baea9126f93994450337dd7f7d935c95de6ba375fb465b5de97df42e76c82152",
+    "native-eligibility.mjs": "sha256:cf47633335dea0e934b7142d9f81fe1e881b1c8f8969c1c82f0edfc3bef2b994",
+    "protocol-candidate-ci.yml": "sha256:f75122bcea9222f5ff0b78c55d3303681711ee4c7588650019e4bed63acf75ae"
+  },
+  "hash_algorithm": "SHA-256 over exact committed file bytes",
+  "hashing_scope": "Every experiment-manifest protocol artifact except freeze-manifest.json. The protocol_commit_sha identifies the payload commit containing these exact bytes; the final branch-head commit and freeze-manifest hash are recorded in the PR.",
+  "stategate_pin": "dd6a607533b0c5c31eb99840e39d0a443998541a",
+  "scenario_execution_authorized": false,
+  "experimental_outcomes_collected": false,
+  "terminal": "REPAIRED_PENDING_REVIEW",
+  "protocol_construction_base_commit": "c5da7279eee2ac0c750c7f7f7b16bb6f65903174",
+  "supersedes_failed_freeze_candidates": [
+    {
+      "payload_commit": "d3e518df008d41ac01f3d9bb110d743f6dca3287",
+      "reason": "The first independent review found 11 protocol defect groups; this manifest does not treat that candidate as a valid freeze."
+    },
+    {
+      "payload_commit": "2d8cca1ba7f8d6ce584465f543352c6ff336bb14",
+      "reviewed_branch_head": "176e85ae3e4abbf06bed2c11d1dd8675cf1017e8",
+      "reason": "The second independent review found seven further protocol defects; this manifest does not treat that candidate as a valid freeze."
+    },
+    {
+      "payload_commit": "0c468af5b181b82b3cad68b7634ff3a2dccd91d6",
+      "reviewed_branch_head": "8261bbf048b82931dab9e65d4249df6aee432ac5",
+      "reason": "The third independent review found nine further material protocol defects; this manifest does not treat that candidate as a valid freeze."
+    },
+    {
+      "payload_commit": "1648256215c4c6736c73a1b667a1d96859c6fc5b",
+      "reviewed_branch_head": "c1283d2da4490cf2e5bcc13ec1db2f5505a1d8a7",
+      "reason": "Fourth current-head review identified eleven material defects; retained as historical candidate only."
+    }
+  ],
+  "validation": {
+    "status": "Candidate deterministic tests only; independent exact-head review required",
+    "commands": [
+      "node regression-tests.mjs --stategate-dir /clean/pinned/checkout",
+      "node validate-protocol.mjs"
+    ],
+    "experimental_outcomes": "NONE; no scenario execution or collection authorized"
+  },
+  "future_execution_blockers": [
+    "Verify three disposable repositories each instantiate 24 unique protected scenario target branches at the exact frozen arm base, byte-identical common collector and Arm C required check; otherwise BLOCKED.",
+    "Provision BENCHMARK_ADMIN_READ_TOKEN with Administration read-only and no write scope; verify branch-protection, ruleset list and all returned definition GETs return HTTP 200, and that the complete list is empty in every arm; otherwise BLOCKED.",
+    "Verify equal staged canonical diff across all arms before every matched set; otherwise BLOCKED.",
+    "Confirm an already-authorized reviewer distinct from each PR author; no recruitment under #43.",
+    "Resolve StateGate's internal actions/upload-artifact@v4 identity and retention before trials; otherwise BLOCKED."
+  ]
+}

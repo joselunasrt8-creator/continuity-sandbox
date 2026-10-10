@@ -1,0 +1,3 @@
+fixture=stategate-mechanism-outcome-v1
+object=BASE
+sequence=0

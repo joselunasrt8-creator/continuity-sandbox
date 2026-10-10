@@ -1,0 +1,30 @@
+name: StateGate protocol candidate validation
+on:
+  pull_request:
+    paths:
+      - 'experiments/stategate-mechanism-outcome-v1/**'
+      - '.github/workflows/stategate-protocol-validation.yml'
+permissions:
+  contents: read
+jobs:
+  protocol-validation:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: joselunasrt8-creator/stategate
+          ref: dd6a607533b0c5c31eb99840e39d0a443998541a
+          path: .protocol-stategate
+          persist-credentials: false
+      - name: Verify runtime
+        run: node --version
+      - name: Synthetic adversarial regressions
+        run: node experiments/stategate-mechanism-outcome-v1/regression-tests.mjs --stategate-dir "$GITHUB_WORKSPACE/.protocol-stategate"
+      - name: Verify protocol, exact payload and freeze hashes
+        run: node experiments/stategate-mechanism-outcome-v1/validate-protocol.mjs
+      - name: Check whitespace
+        run: git diff --check ${{ github.event.pull_request.base.sha }}...HEAD

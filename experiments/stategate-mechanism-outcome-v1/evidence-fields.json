@@ -1,0 +1,743 @@
+{
+  "catalog_version": "1.4.0",
+  "terminal_metric": "evidence_completeness_percent",
+  "scoring_rule": "Build a standardized mechanism packet using only the arm's eligible durable sources, then score one point only when the atomic field is explicit, non-null, source-verifiable against the independent common collector, and valid under its rule. A uses GitHub-native durable PR/review/check/run/rule/log surfaces; B uses those plus its snapshot; C uses those plus its StateGate check/proof. The common collector is answer-key instrumentation and is forbidden as a packet source. Arrays may be empty when an eligible source proves zero items. Denominator is the count of terminal_metric entries applicable to the scenario class.",
+  "eligible_packet_sources": {
+    "A": [
+      "GitHub-native durable PR/review/check/workflow/rule objects and logs retained at the observation cutoff",
+      "Equal all-arm native raw-event archive; operator native-context and packet-provenance metadata, never absent GitHub field reconstruction"
+    ],
+    "B": [
+      "Arm A sources",
+      "pr-state-snapshot.json"
+    ],
+    "C": [
+      "Arm A sources",
+      "StateGate check output",
+      "MERGE_GUARD_PROOF.json"
+    ]
+  },
+  "forbidden_packet_source": "common-collector output; it is used only to verify truth, timestamps, source fidelity, and missingness",
+  "fields": [
+    {
+      "id": "E01",
+      "path": "context.scenario_id",
+      "validation": "matches ^SG-MO1-C[1-6]-R0[1-4]$ and SCENARIOS.json",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-context",
+          "path": "$.scenario_id"
+        }
+      ]
+    },
+    {
+      "id": "E02",
+      "path": "context.repetition",
+      "validation": "equals numeric Rxx suffix",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-context",
+          "path": "$.repetition"
+        }
+      ]
+    },
+    {
+      "id": "E03",
+      "path": "context.arm",
+      "validation": "one of A,B,C",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-context",
+          "path": "$.arm"
+        }
+      ]
+    },
+    {
+      "id": "E04",
+      "path": "trigger.event_name",
+      "validation": "non-empty GitHub event name",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-context",
+          "path": "$.event_name"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.trigger.event_name"
+        }
+      ]
+    },
+    {
+      "id": "E05",
+      "path": "trigger.event_action",
+      "validation": "non-empty event action",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "raw-event",
+          "path": "$.action"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.trigger.event_action"
+        }
+      ]
+    },
+    {
+      "id": "E06",
+      "path": "trigger.event_payload_sha256",
+      "validation": "sha256:<64 lowercase hex> and matches preserved raw event",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "raw-event",
+          "path": "$bytes"
+        }
+      ]
+    },
+    {
+      "id": "E07",
+      "path": "trigger.pr_number",
+      "validation": "positive integer matching fetched PR",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "raw-event",
+          "path": "$.pull_request.number"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.trigger.pr_number"
+        }
+      ]
+    },
+    {
+      "id": "E08",
+      "path": "trigger.head_sha",
+      "validation": "40 lowercase hex from trigger payload",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "raw-event",
+          "path": "$.pull_request.head.sha"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.trigger.head_sha"
+        }
+      ]
+    },
+    {
+      "id": "E09",
+      "path": "trigger.base_sha",
+      "validation": "40 lowercase hex from trigger payload",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "raw-event",
+          "path": "$.pull_request.base.sha"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.trigger.base_sha"
+        }
+      ]
+    },
+    {
+      "id": "E10",
+      "path": "fetched_object.repository.id",
+      "validation": "positive GitHub repository integer ID",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-repository",
+          "path": "$.id"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.repository.id"
+        }
+      ]
+    },
+    {
+      "id": "E11",
+      "path": "fetched_object.repository.full_name",
+      "validation": "equals configured owner/name",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-repository",
+          "path": "$.full_name"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.repository.full_name"
+        }
+      ]
+    },
+    {
+      "id": "E12",
+      "path": "fetched_object.pull_request.number",
+      "validation": "equals trigger PR number",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-pr",
+          "path": "$.number"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.pull_request.number"
+        }
+      ]
+    },
+    {
+      "id": "E13",
+      "path": "fetched_object.pull_request.html_url",
+      "validation": "absolute GitHub PR URL",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-pr",
+          "path": "$.html_url"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.pull_request.html_url"
+        }
+      ]
+    },
+    {
+      "id": "E14",
+      "path": "fetched_object.head_sha",
+      "validation": "40 lowercase hex and consistency start=end",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-pr",
+          "path": "$.head.sha"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.fetched_object.head_sha"
+        }
+      ]
+    },
+    {
+      "id": "E15",
+      "path": "fetched_object.base_sha",
+      "validation": "40 lowercase hex and consistency start=end",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-pr",
+          "path": "$.base.sha"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.fetched_object.base_sha"
+        }
+      ]
+    },
+    {
+      "id": "E16",
+      "path": "fetched_object.diff_sha256",
+      "validation": "sha256:<64 lowercase hex> over frozen canonicalization",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-diff",
+          "path": "$canonical_diff_sha256"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.fetched_object.diff_sha256"
+        },
+        {
+          "kind": "stategate-proof",
+          "path": "$.diff_hash"
+        }
+      ]
+    },
+    {
+      "id": "E17",
+      "path": "fetched_object.diff_canonicalization",
+      "validation": "equals LF_NORMALIZE_TERMINAL_LF_PRESERVE_PATCH_TEXT_AND_ORDER",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-diff",
+          "path": "$canonicalization"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.fetched_object.diff_canonicalization"
+        }
+      ]
+    },
+    {
+      "id": "E18",
+      "path": "fetched_object.reviews",
+      "validation": "array from complete stable pagination; empty is valid evidence of none",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-reviews",
+          "path": "$reviews"
+        }
+      ]
+    },
+    {
+      "id": "E19",
+      "path": "fetched_object.checks",
+      "validation": "array from complete pagination for fetched head; empty is valid",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-checks",
+          "path": "$.check_runs"
+        }
+      ]
+    },
+    {
+      "id": "E20",
+      "path": "fetched_object.commits",
+      "validation": "array from complete PR-commit pagination",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-commits",
+          "path": "$"
+        }
+      ]
+    },
+    {
+      "id": "E21",
+      "path": "fetched_object.timeline",
+      "validation": "array from complete PR timeline pagination",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-timeline",
+          "path": "$"
+        }
+      ]
+    },
+    {
+      "id": "E22",
+      "path": "fetched_object.workflow_runs",
+      "validation": "array from complete head-SHA workflow-run pagination",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-runs",
+          "path": "$.workflow_runs"
+        }
+      ]
+    },
+    {
+      "id": "E23",
+      "path": "fetched_object.workflow_artifacts",
+      "validation": "array from complete artifact pagination for captured runs",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-artifacts",
+          "path": "$"
+        }
+      ]
+    },
+    {
+      "id": "E24",
+      "path": "fetched_object.branch_protection.status",
+      "validation": "HTTP 200; HTTP 404 is incomplete and triggers pre-execution blocker",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-protection",
+          "path": "$http_status"
+        }
+      ]
+    },
+    {
+      "id": "E25",
+      "path": "fetched_object.rulesets",
+      "validation": "status is HTTP 200; summaries are completely paginated; every summary id has one archived full GET definition; frozen benchmark prerequisite requires both arrays empty so classic branch protection is the sole rule surface",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-rulesets",
+          "path": "$"
+        }
+      ]
+    },
+    {
+      "id": "E26",
+      "path": "fetched_object.pull_request.mergeable_state",
+      "validation": "non-null GitHub value at decision packet",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-pr",
+          "path": "$.mergeable_state"
+        }
+      ]
+    },
+    {
+      "id": "E27",
+      "path": "fetched_object.pull_request.merged",
+      "validation": "boolean from PR response",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "native-pr",
+          "path": "$.merged"
+        }
+      ]
+    },
+    {
+      "id": "E28",
+      "path": "collection_started_at",
+      "validation": "UTC RFC 3339 date-time",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "packet-provenance",
+          "path": "$.collection_started_at"
+        }
+      ]
+    },
+    {
+      "id": "E29",
+      "path": "collection_ended_at",
+      "validation": "UTC RFC 3339 date-time not before start",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "packet-provenance",
+          "path": "$.collection_ended_at"
+        }
+      ]
+    },
+    {
+      "id": "E30",
+      "path": "collection_status",
+      "validation": "equals CONSISTENT",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "packet-provenance",
+          "path": "$.collection_status"
+        }
+      ]
+    },
+    {
+      "id": "E31",
+      "path": "provenance.api_version",
+      "validation": "equals 2022-11-28",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "packet-provenance",
+          "path": "$.api_version"
+        },
+        {
+          "kind": "snapshot",
+          "path": "$.provenance.api_version"
+        }
+      ]
+    },
+    {
+      "id": "E32",
+      "path": "provenance.source_inventory",
+      "validation": "non-empty array created under the common packet-building procedure; every entry identifies an eligible arm source by source kind, immutable URL or API object identity, capture timestamp, and sha256:<64 lowercase hex> over exact retained bytes; no entry may identify common-collector output",
+      "applicable_classes": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "terminal_metric": true,
+      "source_mappings": [
+        {
+          "kind": "packet-provenance",
+          "path": "$.source_inventory"
+        }
+      ]
+    }
+  ],
+  "denominators": {
+    "C1": 32,
+    "C2": 32,
+    "C3": 32,
+    "C4": 32,
+    "C5": 32,
+    "C6": 32
+  },
+  "arm_specific_fields_excluded_from_terminal_metric": {
+    "A": [
+      "native gate display/log packet"
+    ],
+    "B": [
+      "snapshot comparator JSON and its provenance"
+    ],
+    "C": [
+      "StateGate proof, check output, validator identity, and proof bindings"
+    ]
+  },
+  "binding_contract": "Only the exact source kind/path mappings below are allowed. Bytes must hash to the artifact digest, resolve at the bound path, satisfy the field rule and agree with the independent answer key where comparable. Common collector cannot supply any source, even relabelled: its record shape and digest are rejected. Archive authenticity remains an operator responsibility; this is offline consistency, not cryptographic GitHub attestation."
+}
