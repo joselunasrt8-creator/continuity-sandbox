@@ -1,30 +1,31 @@
 {
-  "manifest_version": "1.2.0",
+  "manifest_version": "1.4.0",
   "file_mode": "100644",
   "no_unlisted_files": true,
   "common_files": {
     ".github/workflows/common-collector.yml": "common-collector.yml",
     ".github/workflows/fixture-ci.yml": "fixture-ci.yml",
     "benchmark/benchmark-fixture.txt": "fixtures/base/benchmark-fixture.txt",
-    "experiments/stategate-mechanism-outcome-v1/common-collector.mjs": "common-collector.mjs"
+    "experiments/stategate-mechanism-outcome-v1/common-collector.mjs": "common-collector.mjs",
+    ".github/workflows/native-event-archive.yml": "native-event-archive.yml"
   },
   "arms": {
     "A": {
       "additional_files": {},
-      "root_git_tree_sha1": "d42f4e3bb3a7fdf5c9e741e12ed86e903f232628"
+      "root_git_tree_sha1": "2491a0b96a1165791520220205a73b9c4c46095c"
     },
     "B": {
       "additional_files": {
         ".github/workflows/snapshot-collector.yml": "snapshot-collector.yml",
         "experiments/stategate-mechanism-outcome-v1/snapshot-collector.mjs": "snapshot-collector.mjs"
       },
-      "root_git_tree_sha1": "277ea27a1353613dc4559e7b4f703fdc1b7ab0b3"
+      "root_git_tree_sha1": "bc1b661b525f55c074b9e5531702d29fea167932"
     },
     "C": {
       "additional_files": {
         ".github/workflows/stategate-required-check.yml": "stategate-required-check.yml"
       },
-      "root_git_tree_sha1": "0236b7d3fc6f1f5279d1fbd111c53898a92afeae"
+      "root_git_tree_sha1": "d61365ae82684cc95422a09f7b82d351e2245b96"
     }
   },
   "construction": "Create a new empty repository tree using common_files plus only the assigned arm additional_files. Copy exact source bytes from this frozen package at the exact destination path and mode; add no README, license, generated file, or other workflow. git write-tree must equal the assigned root_git_tree_sha1 before the base commit is created.",

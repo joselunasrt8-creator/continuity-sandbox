@@ -1,0 +1,26 @@
+name: Native raw event archive
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, closed]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+permissions:
+  contents: read
+jobs:
+  archive-event:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Preserve exact event bytes and context
+        env:
+          BENCHMARK_SCENARIO_ID: ${{ vars.BENCHMARK_SCENARIO_ID }}
+          BENCHMARK_ARM: ${{ vars.BENCHMARK_ARM }}
+        run: |
+          mkdir -p native-event
+          cp "$GITHUB_EVENT_PATH" native-event/event.json
+          node -e 'const fs=require("node:fs"); fs.writeFileSync("native-event/context.json", JSON.stringify({scenario_id:process.env.BENCHMARK_SCENARIO_ID,repetition:Number(process.env.BENCHMARK_SCENARIO_ID.slice(-2)),arm:process.env.BENCHMARK_ARM,event_name:process.env.GITHUB_EVENT_NAME,event_sha:process.env.GITHUB_SHA,run_id:process.env.GITHUB_RUN_ID,run_attempt:process.env.GITHUB_RUN_ATTEMPT})+"\n")'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-event-${{ github.run_id }}-${{ github.run_attempt }}
+          path: native-event/
+          if-no-files-found: error
+          retention-days: 90

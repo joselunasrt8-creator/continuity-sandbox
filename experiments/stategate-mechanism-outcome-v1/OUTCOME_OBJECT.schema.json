@@ -62,7 +62,11 @@
     "diff_identity.canonicalization",
     "review_state.decision_head_sha",
     "review_state.approval_count",
-    "review_state.evidence_sha256"
+    "review_state.evidence_sha256",
+    "replay_record",
+    "operator_ledger",
+    "reconstruction_record",
+    "evidence_answer_key"
   ],
   "type": "object",
   "additionalProperties": false,
@@ -105,11 +109,15 @@
     "provenance",
     "artifacts",
     "diff_identity",
-    "review_state"
+    "review_state",
+    "evidence_answer_key",
+    "replay_record",
+    "operator_ledger",
+    "reconstruction_record"
   ],
   "properties": {
     "schema_version": {
-      "const": "1.2.0"
+      "const": "1.4.0"
     },
     "scenario_id": {
       "type": "string",
@@ -487,7 +495,7 @@
       ],
       "properties": {
         "catalog_version": {
-          "const": "1.2.0"
+          "const": "1.4.0"
         },
         "fields": {
           "type": "array",
@@ -842,6 +850,18 @@
             "type": "string",
             "format": "date-time",
             "pattern": "Z$"
+          },
+          "bytes_base64": {
+            "type": "string"
+          },
+          "http_status": {
+            "type": "integer"
+          },
+          "pagination_complete": {
+            "type": "boolean"
+          },
+          "stable": {
+            "type": "boolean"
           }
         }
       },
@@ -919,6 +939,31 @@
           ]
         }
       }
+    },
+    "evidence_answer_key": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "minLength": 1
+    },
+    "replay_record": {
+      "type": [
+        "null",
+        "object"
+      ]
+    },
+    "operator_ledger": {
+      "type": [
+        "null",
+        "object"
+      ]
+    },
+    "reconstruction_record": {
+      "type": [
+        "null",
+        "object"
+      ]
     }
   },
   "allOf": [
@@ -3057,79 +3102,561 @@
           "missingness"
         ]
       }
-    }
-  ,
-    {
-      "if": {"properties": {"observed_eligible": {"const": null}}},
-      "then": {"properties": {"false_allow": {"const": null}, "false_block": {"const": null}}}
     },
     {
-      "if": {"properties": {"ground_truth_eligible": {"const": false}, "observed_eligible": {"const": true}}, "required": ["ground_truth_eligible", "observed_eligible"]},
-      "then": {"properties": {"false_allow": {"const": true}, "false_block": {"const": false}}}
+      "if": {
+        "properties": {
+          "observed_eligible": {
+            "const": null
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "false_allow": {
+            "const": null
+          },
+          "false_block": {
+            "const": null
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"ground_truth_eligible": {"const": true}, "observed_eligible": {"const": false}}, "required": ["ground_truth_eligible", "observed_eligible"]},
-      "then": {"properties": {"false_allow": {"const": false}, "false_block": {"const": true}}}
+      "if": {
+        "properties": {
+          "ground_truth_eligible": {
+            "const": false
+          },
+          "observed_eligible": {
+            "const": true
+          }
+        },
+        "required": [
+          "ground_truth_eligible",
+          "observed_eligible"
+        ]
+      },
+      "then": {
+        "properties": {
+          "false_allow": {
+            "const": true
+          },
+          "false_block": {
+            "const": false
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"ground_truth_eligible": {"const": true}, "observed_eligible": {"const": true}}, "required": ["ground_truth_eligible", "observed_eligible"]},
-      "then": {"properties": {"false_allow": {"const": false}, "false_block": {"const": false}}}
+      "if": {
+        "properties": {
+          "ground_truth_eligible": {
+            "const": true
+          },
+          "observed_eligible": {
+            "const": false
+          }
+        },
+        "required": [
+          "ground_truth_eligible",
+          "observed_eligible"
+        ]
+      },
+      "then": {
+        "properties": {
+          "false_allow": {
+            "const": false
+          },
+          "false_block": {
+            "const": true
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"ground_truth_eligible": {"const": false}, "observed_eligible": {"const": false}}, "required": ["ground_truth_eligible", "observed_eligible"]},
-      "then": {"properties": {"false_allow": {"const": false}, "false_block": {"const": false}}}
+      "if": {
+        "properties": {
+          "ground_truth_eligible": {
+            "const": true
+          },
+          "observed_eligible": {
+            "const": true
+          }
+        },
+        "required": [
+          "ground_truth_eligible",
+          "observed_eligible"
+        ]
+      },
+      "then": {
+        "properties": {
+          "false_allow": {
+            "const": false
+          },
+          "false_block": {
+            "const": false
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"timestamps": {"properties": {"evaluation_ready_at": {"type": "null"}}, "required": ["evaluation_ready_at"]}}, "required": ["timestamps"]},
-      "then": {"properties": {"missingness": {"contains": {"type": "object", "properties": {"field_path": {"const": "timestamps.evaluation_ready_at"}}, "required": ["field_path"]}}}, "required": ["missingness"]}
+      "if": {
+        "properties": {
+          "ground_truth_eligible": {
+            "const": false
+          },
+          "observed_eligible": {
+            "const": false
+          }
+        },
+        "required": [
+          "ground_truth_eligible",
+          "observed_eligible"
+        ]
+      },
+      "then": {
+        "properties": {
+          "false_allow": {
+            "const": false
+          },
+          "false_block": {
+            "const": false
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"evidence_completeness": {"type": "null"}}, "required": ["evidence_completeness"]},
-      "then": {"properties": {"missingness": {"contains": {"type": "object", "properties": {"field_path": {"const": "evidence_completeness"}}, "required": ["field_path"]}}}, "required": ["missingness"]}
+      "if": {
+        "properties": {
+          "timestamps": {
+            "properties": {
+              "evaluation_ready_at": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "evaluation_ready_at"
+            ]
+          }
+        },
+        "required": [
+          "timestamps"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "timestamps.evaluation_ready_at"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
     },
     {
-      "if": {"properties": {"execution_outcome": {"const": "MERGED"}}, "required": ["execution_outcome"]},
-      "then": {"properties": {"observed_eligible": {"const": true}}}
+      "if": {
+        "properties": {
+          "evidence_completeness": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "evidence_completeness"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "evidence_completeness"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "missingness"
+        ]
+      }
     },
     {
-      "if": {"properties": {"evidence_completeness": {"type": "null"}}, "required": ["evidence_completeness"]},
-      "then": {"properties": {"evidence_completeness_percent": {"const": null}}}
+      "if": {
+        "properties": {
+          "execution_outcome": {
+            "const": "MERGED"
+          }
+        },
+        "required": [
+          "execution_outcome"
+        ]
+      },
+      "then": {
+        "properties": {
+          "observed_eligible": {
+            "const": true
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"evidence_completeness": {"type": "object"}}, "required": ["evidence_completeness"]},
-      "then": {"properties": {"evidence_completeness_percent": {"type": "number"}}}
+      "if": {
+        "properties": {
+          "evidence_completeness": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "evidence_completeness"
+        ]
+      },
+      "then": {
+        "properties": {
+          "evidence_completeness_percent": {
+            "const": null
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"scenario_id": {"pattern": "^SG-MO1-C6-"}}, "required": ["scenario_id"]},
-      "then": {"properties": {"reproducibility": {"enum": ["PASS", "FAIL", "MISSING"]}}}
+      "if": {
+        "properties": {
+          "evidence_completeness": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "evidence_completeness"
+        ]
+      },
+      "then": {
+        "properties": {
+          "evidence_completeness_percent": {
+            "type": "number"
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"scenario_id": {"pattern": "^SG-MO1-C[1-5]-"}}, "required": ["scenario_id"]},
-      "then": {"properties": {"reproducibility": {"const": "NOT_APPLICABLE"}}}
+      "if": {
+        "properties": {
+          "scenario_id": {
+            "pattern": "^SG-MO1-C6-"
+          }
+        },
+        "required": [
+          "scenario_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "reproducibility": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "MISSING"
+            ]
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"reproducibility": {"const": "MISSING"}}, "required": ["reproducibility"]},
-      "then": {"properties": {"missingness": {"contains": {"type": "object", "properties": {"field_path": {"const": "reproducibility"}}, "required": ["field_path"]}}}}
+      "if": {
+        "properties": {
+          "scenario_id": {
+            "pattern": "^SG-MO1-C[1-5]-"
+          }
+        },
+        "required": [
+          "scenario_id"
+        ]
+      },
+      "then": {
+        "properties": {
+          "reproducibility": {
+            "const": "NOT_APPLICABLE"
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"reproducibility": {"const": "NOT_APPLICABLE"}}, "required": ["reproducibility"]},
-      "then": {"properties": {"missingness": {"contains": {"type": "object", "properties": {"field_path": {"const": "reproducibility"}, "code": {"const": "NOT_APPLICABLE"}}, "required": ["field_path", "code"]}}}}
+      "if": {
+        "properties": {
+          "reproducibility": {
+            "const": "MISSING"
+          }
+        },
+        "required": [
+          "reproducibility"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "reproducibility"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"observed_eligible": {"const": null}}, "required": ["observed_eligible"]},
-      "then": {"properties": {"missed_invalid_state": {"const": null}}}
+      "if": {
+        "properties": {
+          "reproducibility": {
+            "const": "NOT_APPLICABLE"
+          }
+        },
+        "required": [
+          "reproducibility"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "const": "reproducibility"
+                },
+                "code": {
+                  "const": "NOT_APPLICABLE"
+                }
+              },
+              "required": [
+                "field_path",
+                "code"
+              ]
+            }
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"ground_truth_eligible": {"const": true}, "observed_eligible": {"type": "boolean"}}, "required": ["ground_truth_eligible", "observed_eligible"]},
-      "then": {"properties": {"missed_invalid_state": {"const": false}}}
+      "if": {
+        "properties": {
+          "observed_eligible": {
+            "const": null
+          }
+        },
+        "required": [
+          "observed_eligible"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missed_invalid_state": {
+            "const": null
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"ground_truth_eligible": {"const": false}, "observed_eligible": {"const": true}}, "required": ["ground_truth_eligible", "observed_eligible"]},
-      "then": {"properties": {"missed_invalid_state": {"const": true}}}
+      "if": {
+        "properties": {
+          "ground_truth_eligible": {
+            "const": true
+          },
+          "observed_eligible": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ground_truth_eligible",
+          "observed_eligible"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missed_invalid_state": {
+            "const": false
+          }
+        }
+      }
     },
     {
-      "if": {"properties": {"ground_truth_eligible": {"const": false}, "observed_eligible": {"const": false}}, "required": ["ground_truth_eligible", "observed_eligible"]},
-      "then": {"properties": {"missed_invalid_state": {"const": false}}}
+      "if": {
+        "properties": {
+          "ground_truth_eligible": {
+            "const": false
+          },
+          "observed_eligible": {
+            "const": true
+          }
+        },
+        "required": [
+          "ground_truth_eligible",
+          "observed_eligible"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missed_invalid_state": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "ground_truth_eligible": {
+            "const": false
+          },
+          "observed_eligible": {
+            "const": false
+          }
+        },
+        "required": [
+          "ground_truth_eligible",
+          "observed_eligible"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missed_invalid_state": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "replay_record": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "replay_record"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "properties": {
+                "field_path": {
+                  "const": "replay_record"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operator_ledger": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "operator_ledger"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "properties": {
+                "field_path": {
+                  "const": "operator_ledger"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "reconstruction_record": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "reconstruction_record"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "properties": {
+                "field_path": {
+                  "const": "reconstruction_record"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "evidence_answer_key": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "evidence_answer_key"
+        ]
+      },
+      "then": {
+        "properties": {
+          "missingness": {
+            "contains": {
+              "properties": {
+                "field_path": {
+                  "const": "evidence_answer_key"
+                }
+              },
+              "required": [
+                "field_path"
+              ]
+            }
+          }
+        }
+      }
     }
   ]
 }

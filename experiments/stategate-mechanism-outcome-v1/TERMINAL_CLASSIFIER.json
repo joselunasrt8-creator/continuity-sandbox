@@ -1,5 +1,5 @@
 {
-  "classifier_version": "1.1.0",
+  "classifier_version": "1.4.0",
   "terminal_values": [
     "MEASURABLE_IMPROVEMENT",
     "NO_MATERIAL_DIFFERENCE",
@@ -14,7 +14,7 @@
       "C false allows = 0 across complete ineligible episodes.",
       "C false-block rate is no more than 5 percentage points above A and no more than 5 percentage points above B.",
       "C meets at least one qualifying-outcome threshold against BOTH A and B: mean standardized-mechanism-packet evidence completeness improves by at least 20 percentage points; OR median blinded reconstruction time is reduced by at least 30 percent with reconstruction accuracy no lower than either comparator; OR C blocks at least one independently GT-ineligible matched transition for which both A and B report eligible/mergeable, while C reports ineligible.",
-      "Median C added gating delay is at most 45 seconds, measured from the last common native check/evidence availability to C disposition.",
+      "Median C added gating delay is at most 45 seconds, exactly timestamps.decision_at - timestamps.evaluation_ready_at per analysis-plan.md.",
       "Median operator overhead for C is at most 120 seconds per PR."
     ],
     "qualifying_outcomes": {

@@ -1,0 +1,37 @@
+{
+  "version": "1.4.0",
+  "operator_ledger": {
+    "required": [
+      "clock_id",
+      "intervals"
+    ],
+    "interval_required": [
+      "id",
+      "actor",
+      "activity",
+      "started_at",
+      "ended_at",
+      "start_monotonic_ns",
+      "end_monotonic_ns",
+      "scope"
+    ],
+    "scopes": [
+      "arm-specific",
+      "common",
+      "passive"
+    ],
+    "rule": "One registered monotonic clock and one operator per episode. Half-open intervals. Include only arm-specific active work. Merge overlapping or touching included intervals (union, never double count). Preserve nanosecond precision, divide union duration by 1e9 without rounding. UTC anchors must be valid and duration agree within source-declared precision <=1 second. Reject reversed, duplicate-id or mixed-clock/mixed-actor records. Capture setup/check/interpret/retry/retention contemporaneously; exclude passive and common time. No retrospective reconstructed intervals."
+  },
+  "reconstruction": {
+    "questions": [
+      "object_identity",
+      "rule_state",
+      "eligibility",
+      "execution",
+      "evidence_sufficiency"
+    ],
+    "answer_rule": "One JSON answer per question in submission and independent answer key. Exact canonical JSON equality for all five is required for correct=true. Missing, null, unknown and timeout answers score false; no partial credit. Object identity = repository full_name, PR number, head/base and diff hash; rule_state = full frozen native controls and arm-required contexts; eligibility = frozen gate disposition; execution = merged/not merged and executed head/merge commit or null; evidence_sufficiency = the complete E01-E32 failed-ID set. Answer key derived from preregistered scenario plus common observations before unblinding and hashed before submission. Record key and submission artifacts, submission time, key freeze time, timeout/censor state. Accuracy = correct completed submissions / all assigned submissions (timeouts/missing incorrect); time median uses completed submissions only and publishes censored counts."
+  },
+  "ci_cost": "Common collector preserves every run attempt jobs endpoint (all pages) and usage endpoint HTTP response (200/403/404/410/422). Sum elapsed seconds of terminal jobs; overlapping jobs counted separately. Missing/nonterminal timing = null with reason. Usage billing from unavailable/deprecated endpoint remains null, never estimated from elapsed. Common/native-event instrumentation is excluded equally from arm-added cost.",
+  "replay": "C6: fixed replay-evidence.mjs command twice with outbound network disabled, same frozen input bytes and Node version. Retain command argv, runtime identity, input and two output artifacts. PASS is derived from identical exact output bytes, correct input/scenario/arm identity and ground-truth eligibility; C additionally requires all nine binding_checks true and archived_proof_equal=true plus pinned clean checkout identity. FAIL requires performed, parseable replay records that fail these conditions; unperformed/unavailable = MISSING with reason. Output checks do not establish provenance authenticity."
+}

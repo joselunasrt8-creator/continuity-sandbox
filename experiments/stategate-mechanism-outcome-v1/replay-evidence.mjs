@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Offline C6 replay. This file contains no network call and accepts only archived inputs.
+import { deriveNative } from './native-eligibility.mjs'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { readFile, writeFile } from 'node:fs/promises'
@@ -23,7 +24,7 @@ const canonical = value => Array.isArray(value) ? `[${value.map(canonical).join(
 const normalize = value => typeof value === 'string' ? value.trim() : ''
 const packet = input.common_packet
 const native = input.native_input
-if (packet.packet_version !== '1.2.0') throw new Error('Replay requires common packet version 1.2.0')
+if (packet.packet_version !== '1.4.0') throw new Error('Replay requires common packet version 1.4.0')
 const nativeKeys = Object.keys(native || {}).sort()
 if (nativeKeys.join(',') !== 'expected_base_sha,expected_diff_sha256,expected_head_sha' ||
     !/^[0-9a-f]{40}$/.test(native.expected_head_sha) || !/^[0-9a-f]{40}$/.test(native.expected_base_sha) ||
@@ -37,60 +38,7 @@ if (!Array.isArray(packet.fetched_object?.checks) || !Array.isArray(packet.fetch
 if (input.arm === 'C' ? (!input.stategate_input || !input.archived_stategate_proof) : (input.stategate_input !== undefined || input.archived_stategate_proof !== undefined)) {
   throw new Error('StateGate input and proof are required only for Arm C')
 }
-const nativeReasons = []
-if (packet.fetched_object.head_sha !== native.expected_head_sha) nativeReasons.push('HEAD_MISMATCH')
-if (packet.fetched_object.base_sha !== native.expected_base_sha) nativeReasons.push('BASE_MISMATCH')
-if (packet.fetched_object.diff_sha256 !== native.expected_diff_sha256) nativeReasons.push('DIFF_MISMATCH')
-if (packet.fetched_object.base_ref !== `bench/${input.scenario_id}/base`) nativeReasons.push('TARGET_BRANCH_MISMATCH')
-
-const headSha = packet.fetched_object.head_sha
-const fixtureRuns = packet.fetched_object.workflow_runs.filter(run => run.name === 'Fixture CI' && run.head_sha === headSha)
-  .sort((a, b) => Number(a.run_number) - Number(b.run_number) || Number(a.run_attempt) - Number(b.run_attempt) || Number(a.id) - Number(b.id))
-const latestFixtureRun = fixtureRuns.at(-1) || null
-const fixtureChecks = packet.fetched_object.checks.filter(check => check.name === 'fixture-ci' && check.head_sha === headSha &&
-  latestFixtureRun && check.check_suite?.id === latestFixtureRun.check_suite_id).sort((a, b) => Number(a.id) - Number(b.id))
-const latestFixtureCheck = fixtureChecks.at(-1) || null
-const fixtureCiSuccess = latestFixtureRun?.status === 'completed' && latestFixtureRun?.conclusion === 'success' &&
-  latestFixtureCheck?.status === 'completed' && latestFixtureCheck?.conclusion === 'success'
-if (!fixtureCiSuccess) nativeReasons.push('FIXTURE_CI_NOT_SUCCESSFUL')
-
-const latestReviewByUser = new Map()
-for (const review of packet.fetched_object.reviews) {
-  if (review.user_id == null) continue
-  const current = latestReviewByUser.get(review.user_id)
-  const order = `${review.submitted_at || ''}:${String(review.id).padStart(20, '0')}`
-  if (!current || order > current.order) latestReviewByUser.set(review.user_id, { order, review })
-}
-const authorUserId = packet.fetched_object.pull_request.author_user_id
-const currentHeadApprovals = [...latestReviewByUser.values()].filter(({ review }) =>
-  review.state === 'APPROVED' && review.commit_id === headSha && review.user_id !== authorUserId).length
-const currentHeadApproval = authorUserId != null && currentHeadApprovals >= 1
-if (!currentHeadApproval) nativeReasons.push('CURRENT_HEAD_APPROVAL_MISSING')
-
-const protection = packet.fetched_object.branch_protection
-const reviewRule = protection?.body?.required_pull_request_reviews
-const checkRule = protection?.body?.required_status_checks
-const requiredCheckNames = [
-  ...(checkRule?.contexts || []),
-  ...(checkRule?.checks || []).map(check => check.context)
-]
-const bypass = reviewRule?.bypass_pull_request_allowances
-const noBypass = bypass && ['users', 'teams', 'apps'].every(kind => Array.isArray(bypass[kind]) && bypass[kind].length === 0)
-const rulesets = packet.fetched_object.rulesets
-const noRepositoryRulesets = rulesets?.status === 200 && Array.isArray(rulesets.summaries) && rulesets.summaries.length === 0 &&
-  Array.isArray(rulesets.definitions) && rulesets.definitions.length === 0
-const nativeRulesVerified = protection?.status === 200 &&
-  reviewRule?.dismiss_stale_reviews === true &&
-  reviewRule?.require_last_push_approval === true &&
-  reviewRule?.required_approving_review_count >= 1 &&
-  checkRule?.strict === true && requiredCheckNames.includes('fixture-ci') &&
-  noBypass &&
-  noRepositoryRulesets &&
-  protection?.body?.enforce_admins?.enabled === true &&
-  protection?.body?.allow_force_pushes?.enabled === false &&
-  protection?.body?.allow_deletions?.enabled === false
-if (!nativeRulesVerified) nativeReasons.push('NATIVE_RULES_UNVERIFIED')
-const nativeEligible = nativeReasons.length === 0
+const { nativeReasons, nativeEligible, headSha, latestFixtureRun, latestFixtureCheck, fixtureCiSuccess, currentHeadApproval, currentHeadApprovals, nativeRulesVerified } = deriveNative(packet, input)
 
 let stategate = null
 if (input.arm === 'C') {

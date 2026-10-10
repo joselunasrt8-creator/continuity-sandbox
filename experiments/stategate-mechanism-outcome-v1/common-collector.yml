@@ -38,6 +38,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           CONFIG_READ_TOKEN: ${{ secrets.BENCHMARK_ADMIN_READ_TOKEN }}
           BENCHMARK_SCENARIO_ID: ${{ vars.BENCHMARK_SCENARIO_ID }}
+          BENCHMARK_REVIEWER_LOGIN: ${{ vars.BENCHMARK_REVIEWER_LOGIN }}
           BENCHMARK_ARM: ${{ vars.BENCHMARK_ARM }}
           PR_NUMBER: ${{ inputs.pr_number }}
         run: node experiments/stategate-mechanism-outcome-v1/common-collector.mjs

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { verifyCompleteness, verifyReplay, verifyMeasurements, verifySurfaceContracts } from './evidence-validation.mjs'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { readFile } from 'node:fs/promises'
@@ -12,6 +13,7 @@ const [scenarios, schema, classifier, manifest, freeze, evidence, fixtures, base
   readJson('experiment-manifest.json'), readJson('freeze-manifest.json'), readJson('evidence-fields.json'),
   readJson('fixtures/FIXTURE_MANIFEST.json'), readJson('fixtures/BASE_TREE_MANIFEST.json')
 ])
+const measurementContract = await readJson('measurement-contract.json')
 const errors = []
 const assert = (condition, message) => { if (!condition) errors.push(message) }
 const sha = (algorithm, bytes) => createHash(algorithm).update(bytes).digest('hex')
@@ -72,7 +74,7 @@ assert(classifier.improvement_gate.all_required.length === 5, 'improvement gate 
 assert(classifier.precedence.length === 6 && classifier.harm_rules.false_allow, 'terminal harm/precedence definitions incomplete')
 
 assert(evidence.fields.length === 32, 'evidence completeness catalog must have exactly 32 atomic fields')
-assert(evidence.catalog_version === '1.2.0', 'evidence completeness catalog version drift')
+assert(evidence.catalog_version === '1.4.0', 'evidence completeness catalog version drift')
 assert(new Set(evidence.fields.map(field => field.id)).size === 32, 'evidence field IDs must be unique')
 for (const cls of ['C1', 'C2', 'C3', 'C4', 'C5', 'C6']) {
   const denominator = evidence.fields.filter(field => field.terminal_metric && field.applicable_classes.includes(cls)).length
@@ -235,9 +237,12 @@ function validateOutcome(outcome) {
   for (const path of schema['x-null-requires-missingness']) {
     if (getPath(outcome, path) === null && !missingPaths.has(path)) outcomeErrors.push('$.' + path + ': null lacks matching missingness record')
   }
+  outcomeErrors.push(...verifyCompleteness(outcome, evidence), ...verifyReplay(outcome), ...verifyMeasurements(outcome, measurementContract))
   return outcomeErrors
 }
 
+assert(classifier.improvement_gate.all_required[3].includes('timestamps.evaluation_ready_at'), 'terminal delay anchor drift')
+assert(manifest.protocol_status === 'REPAIRED_PENDING_REVIEW' && freeze.freeze_status === 'REPAIRED_PENDING_REVIEW', 'candidate must not claim clean review/freeze')
 const protocol = await readFile(join(root, 'PROTOCOL.md'), 'utf8')
 const plan = await readFile(join(root, 'analysis-plan.md'), 'utf8')
 for (const metric of ['false allow', 'false block', 'decision time', 'added gating delay', 'operator overhead', 'rework', 'missed invalid state', 'evidence completeness', 'proof fidelity', 'audit reconstruction time', 'CI/runtime burden', 'manual intervention', 'reproducibility', 'Decision changes', 'economic proxy']) {
@@ -249,32 +254,35 @@ for (const file of ['SCENARIOS.json', 'OUTCOME_OBJECT.schema.json', 'TERMINAL_CL
 const stategateWorkflow = await readFile(join(root, 'stategate-required-check.yml'), 'utf8')
 assert(stategateWorkflow.includes('stategate@' + pin), 'workflow StateGate SHA drift')
 assert(stategateWorkflow.includes('pull_request_review:'), 'StateGate must re-evaluate after review updates')
-assert(!/contents:\s*write|pull-requests:\s*write|checks:\s*write/.test(stategateWorkflow), 'workflow has write authority beyond artifact upload')
+assert(!/contents:\s*write|pull-requests:\s*write|checks:\s*write|actions:\s*write/.test(stategateWorkflow), 'workflow has write authority beyond artifact upload')
 const commonCollector = await readFile(join(root, 'common-collector.mjs'), 'utf8')
 assert(commonCollector.includes('prStart') && commonCollector.includes('prEnd') && commonCollector.includes('reviewsStart') && commonCollector.includes('reviewsEnd'), 'common collector lacks consistency bracket')
+assert(commonCollector.includes('/attempts/${attempt}/jobs?per_page=100') && commonCollector.includes('/timing'), 'job/usage acquisition missing')
+assert(commonCollector.includes('reviewerPermissionEnd'), 'reviewer permission bracket missing')
 assert(commonCollector.includes('/protection') && commonCollector.includes('/rulesets') && commonCollector.includes('/check-runs') && commonCollector.includes('/artifacts'), 'common collector endpoint coverage incomplete')
 assert(commonCollector.includes('check-runs?filter=all&per_page=100'), 'common collector must preserve all check-run attempts')
 assert(commonCollector.includes('/rulesets/${summary.id}') && commonCollector.includes('rulesetDefinitions'), 'common collector must archive full definitions for every ruleset summary')
 assert(commonCollector.includes('protectionEnd') && commonCollector.includes('rulesetSummariesEnd') && commonCollector.includes('stableConfiguration'), 'common collector lacks configuration consistency bracket')
 assert(commonCollector.includes('CONFIG_READ_TOKEN') && commonCollector.includes('configReadToken'), 'common collector lacks separate configuration read credential')
+errors.push(...verifySurfaceContracts(classifier, [stategateWorkflow, await readFile(join(root, 'snapshot-collector.yml'), 'utf8')], commonCollector))
 const commonWorkflow = await readFile(join(root, 'common-collector.yml'), 'utf8')
 assert(commonWorkflow.includes('CONFIG_READ_TOKEN: ${{ secrets.BENCHMARK_ADMIN_READ_TOKEN }}'), 'common workflow lacks Administration read-only secret binding')
 const snapshot = await readFile(join(root, 'snapshot-collector.mjs'), 'utf8')
 assert(!/mergePullRequest|merge_pull_request|decision\s*=\s*['"]eligible/i.test(snapshot), 'snapshot comparator must not decide or merge')
 assert(snapshot.includes('event_payload_sha256') && snapshot.includes('stable_object') && snapshot.includes('stable_reviews'), 'snapshot lacks trigger identity or consistency check')
-const replay = await readFile(join(root, 'replay-evidence.mjs'), 'utf8')
+const replay = await readFile(join(root, 'replay-evidence.mjs'), 'utf8') + await readFile(join(root, 'native-eligibility.mjs'), 'utf8')
 assert(!/\bfetch\s*\(/.test(replay), 'offline replay must not contain network fetch')
 assert(replay.includes(pin) && replay.includes('validateMergeGuard'), 'offline replay lacks pinned StateGate validation')
 assert(!/native\.(fixture_ci_success|current_head_approval|native_rules_verified)/.test(replay), 'offline replay trusts caller-supplied native eligibility facts')
 assert(replay.includes("check.name === 'fixture-ci'") && replay.includes("review.state === 'APPROVED'") && replay.includes('required_pull_request_reviews'), 'offline replay does not derive native eligibility from packet')
 assert(replay.includes('run_attempt') && replay.includes('latestFixtureRun') && replay.includes('latestFixtureCheck'), 'offline replay does not bind Fixture CI to latest run attempt/check')
 assert(replay.includes('bindingChecks') && replay.includes('StateGate/common-packet binding mismatch') && replay.includes('commonReviewEvidence'), 'offline replay lacks exact StateGate/common-object binding')
-assert(replay.includes('expectedStateGateKeys') && replay.includes("packet.packet_version !== '1.2.0'"), 'offline replay does not freeze exact StateGate/common input schemas')
+assert(replay.includes('expectedStateGateKeys') && replay.includes("packet.packet_version !== '1.4.0'"), 'offline replay does not freeze exact StateGate/common input schemas')
 assert(replay.includes("status', '--porcelain=v1', '--untracked-files=all") && replay.includes("HEAD^{tree}") && replay.includes('for (const file of release.files)'), 'offline replay lacks clean pinned tree/release file verification')
 
 const placeholder = {}
 for (const key of requiredFields) placeholder[key] = null
-placeholder.schema_version = '1.2.0'; placeholder.scenario_id = 'SG-MO1-C1-R01'; placeholder.arm = 'A'; placeholder.trial_id = 'STRUCTURAL_SCHEMA_CHECK'; placeholder.repetition = 1
+placeholder.schema_version = '1.4.0'; placeholder.scenario_id = 'SG-MO1-C1-R01'; placeholder.arm = 'A'; placeholder.trial_id = 'STRUCTURAL_SCHEMA_CHECK'; placeholder.repetition = 1
 placeholder.repository = { owner: 'owner', name: 'repo', id: null, url: 'https://example.invalid/repo' }
 placeholder.pull_request = { number: null, url: null, event_id: null }
 placeholder.head = { event_sha: null, decision_sha: null, executed_sha: null }
@@ -315,9 +323,14 @@ const ineligibleMerge = structuredClone(placeholder)
 ineligibleMerge.scenario_id = 'SG-MO1-C2-R01'; ineligibleMerge.ground_truth_eligible = false; ineligibleMerge.observed_eligible = false; ineligibleMerge.execution_outcome = 'MERGED'; ineligibleMerge.false_allow = false; ineligibleMerge.false_block = false; ineligibleMerge.missed_invalid_state = false
 assert(validateOutcome(ineligibleMerge).some(error => error.includes('MERGED requires observed_eligible')), 'negative test failed: ineligible merge escaped false allow')
 const forgedCompleteness = structuredClone(placeholder)
-forgedCompleteness.evidence_completeness = { catalog_version: '1.2.0', fields: evidence.fields.map(field => ({ id: field.id, valid: true, source_bindings: [{ artifact_id: 'SCHEMA-ONLY', source_path: '$' }], reason: null })), numerator: 32, failed_ids: [] }
+forgedCompleteness.evidence_completeness = { catalog_version: '1.4.0', fields: evidence.fields.map(field => ({ id: field.id, valid: true, source_bindings: [{ artifact_id: 'SCHEMA-ONLY', source_path: '$' }], reason: null })), numerator: 32, failed_ids: [] }
 forgedCompleteness.evidence_completeness_percent = 0
 assert(validateOutcome(forgedCompleteness).some(error => error.includes('100 * numerator / 32')), 'negative test failed: forged completeness percentage accepted')
+forgedCompleteness.evidence_completeness_percent = 100
+assert(validateOutcome(forgedCompleteness).some(error => error.includes('completeness')), 'regression: arbitrary artifact/path accepted as 100% evidence')
+const fakeReplay = structuredClone(placeholder)
+fakeReplay.scenario_id = 'SG-MO1-C6-R01'; fakeReplay.reproducibility = 'PASS'
+assert(validateOutcome(fakeReplay).some(error => error.includes('replay')), 'regression: unsupported C6 PASS accepted')
 const wrongClassReplay = structuredClone(placeholder)
 wrongClassReplay.reproducibility = 'PASS'
 assert(validateOutcome(wrongClassReplay).some(error => error.includes('C1-C5 require NOT_APPLICABLE')), 'negative test failed: non-C6 replay result accepted')
