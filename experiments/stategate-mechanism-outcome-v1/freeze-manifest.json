@@ -2,7 +2,7 @@
   "freeze_manifest_version": "1.4.0",
   "freeze_status": "REPAIRED_PENDING_REVIEW",
   "experiment_id": "stategate-mechanism-outcome-v1",
-  "protocol_commit_sha": "c64634a87e00439ce66bea3d86fce69c84796235",
+  "protocol_commit_sha": "724a3418e50c5c9a6dcd316245e48e3f3985b4e5",
   "repository": "joselunasrt8-creator/continuity-sandbox",
   "protocol_artifact_hashes": {
     "PROTOCOL.md": "sha256:6e7be71e63c35940a41d849b9dad77c4c4ef121758ea077f6174f14f6a5339b0",
